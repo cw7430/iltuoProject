@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org"
+				xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+
+<head>
+<title>회원정보수정</title>
+<th:block th:insert="~{fragments::head}" />
+<style>
+.send_bt button {
+	display: inline-block;
+	margin: 20px 0 0;
+	padding: 11px 20px;
+}
+
+.send_bt a {
+	display: inline-block;
+	margin: 20px 0 0;
+	padding: 11px 20px;
+}
+
+table {
+	width: 100%;
+	border-collapse: collapse;
+	/* 모서리 제거 */
+	margin: 0;
+	/* 외부 여백 제거 */
+	padding: 0;
+	/* 내부 여백 제거 */
+}
+
+table, th, td {
+	border: none;
+	/* 테이블, 헤더, 데이터 셀의 테두리 제거 */
+}
+
+th, td {
+	padding: 0;
+	/* 셀 내부 여백 제거 */
+}
+
+.joinLable {
+	color: #2e2e2d;
+	padding: 16px 20px;
+	margin-top: 20px;
+}
+</style>
+<!-- htmx -->
+<script th:src="@{https://unpkg.com/htmx.org@1.5.0/dist/htmx.min.js}"></script>
+</head>
+
+<body>
+	<th:block th:insert="~{fragments::sub_header}" />
+	<!-- header section end -->
+	<!-- contact section start -->
+	<div class="contact_section layout_padding">
+		<div class="container">
+			<div class="row">
+				<div class="col-sm-12">
+					<h1 class="contact_taital">회원정보수정</h1>
+				</div>
+			</div>
+		</div>
+		<form th:action="@{/updateUserInformation}" method="post" onsubmit="return validate();"
+			enctype="multipart/form-data">
+			<div class="container-fluid">
+				<div class="contact_section_2">
+					<div class="row">
+						<div class="col-md-12">
+							<div class="mail_section_1">
+								<table>
+									<tr>
+										<td><label class="joinLable">아이디</label></td>
+										<td><input type="text" class="mail_text" name="userID" th:value="${user.userID}" readonly="readonly"></td>
+									</tr>
+									<tr>
+										<td><label class="joinLable">비밀번호</label></td>
+										<td><input type="password" class="mail_text"
+											placeholder="10자 이상 25자 이하의 영문, 숫자, 특수문자의 조합" id="password"
+											name="password" maxlength="25"
+											hx-get="updateUserInformation/passwordDuplicateCheck"
+											hx-target="#passwordDuplicateResult"
+											hx-trigger="keyup changed delay:50ms"
+											hx-include="#password, #passwordDuplicateCheck"></td>
+									</tr>
+									<tr>
+										<td><label class="joinLable">비밀번호 확인</label></td>
+										<td><input type="password" class="mail_text"
+											id="passwordDuplicateCheck" name="passwordDuplicateCheck"
+											maxlength="25" hx-get="updateUserInformation/passwordDuplicateCheck"
+											hx-target="#passwordDuplicateResult"
+											hx-trigger="keyup changed delay:50ms"
+											hx-include="#password, #passwordDuplicateCheck"></td>
+									</tr>
+									<tr>
+										<td><input type="hidden" id="passwordValidationCode"
+											name="passwordValidationCode" readonly="readonly"></td>
+										<td>
+											<div id="passwordDuplicateResult"></div>
+										</td>
+									</tr>
+									<tr>
+										<td><label class="joinLable">이름</label></td>
+										<td><input type="text" class="mail_text" id="userName"
+											name="userName" th:value="${user.userName}" maxlength="100"></td>
+									</tr>
+									<tr>
+										<td><label class="joinLable">휴대전화번호</label></td>
+										<td><input type="text" class="mail_text" placeholder="010-1234-4567"
+											id="phoneNum" name="phoneNum" th:value="${user.phoneNum}"
+											maxlength="13" hx-get="updateUserInformation/phoneNumValidationCheck"
+											hx-target="#phoneNumValidateResult"
+											hx-trigger="keyup changed delay:50ms"></td>
+									</tr>
+									<tr>
+										<td><input type="hidden" id="phoneNumValidationCode"
+											name="phoneNumValidationCode" readonly="readonly"></td>
+										<td>
+											<div id="phoneNumValidateResult"></div>
+										</td>
+									</tr>
+									<tr>
+										<td><label class="joinLable">이메일</label></td>
+										<td><input type="email" class="mail_text"
+											placeholder="iltuo@naver.com" id="email" name="email"
+											maxlength="100" th:value="${user.email}"></td>
+									</tr>
+								</table>
+								<div class="send_bt">
+									<button class="joinButton" type="submit">정보수정</button>
+									&nbsp;&nbsp;
+									<a class="cancleButton" type="button" th:href="@{/myProfile(userID=${#authentication.name})}">취소</a>
+								</div>
+								<br>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</form>
+	</div>
+	<!-- contact section end -->
+	<!-- footer section start -->
+	<th:block th:insert="~{fragments::footer}" />
+	<!-- footer section end -->
+	<!-- Javascript files-->
+	<th:block th:insert="~{fragments::script}" />
+
+	<script th:inline="javascript">
+		
+		// 휴대전화번호필드에 숫자가 아닌 값 입력 방지 및 "-" 추가
+		const hypenPhoneNum = (target) => {
+			target.value = target.value
+				.replace(/[^0-9]/g, '')
+				.replace(/^(\d{2,3})(\d{3,4})(\d{4})$/, `$1-$2-$3`);
+		    if (target.value.length === 13) {
+		      document.getElementById('email').focus();
+		    }
+		};
+		
+		document.addEventListener('DOMContentLoaded', () => {
+			const phoneNum = document.querySelector('#phoneNum');
+			const phoneNumElement = document.getElementById('phoneNum');
+	        const phoneNumValue = phoneNumElement ? phoneNumElement.value : '';
+			
+			htmx.ajax('GET', `updateUserInformation/phoneNumValidationCheck?phoneNum=${phoneNumValue}`, {
+				target: '#phoneNumValidateResult',
+				swap: 'innerHTML'
+			});
+			
+			phoneNum.addEventListener('input', (event) => {
+				hypenPhoneNum(event.target);
+			});
+			
+			let m = /*[[${msg}]]*/ '기본값';
+		    if (m != null) {
+		        alert(m);
+		    }
+		    
+		});
+		
+		function validate() {
+		    let isValid = true;
+		    let errMsg = "";
+
+		    const passwordValidationCode = document.getElementById('passwordValidationCode').value.trim();
+		    const userName = document.getElementById('userName').value.trim();
+		    const phoneNumValidationCode = document.getElementById('phoneNumValidationCode').value.trim();
+		    const email = document.getElementById('email').value.trim();
+
+
+		    if(passwordValidationCode !== 'a') {
+		        let passwordErrMsg = "비밀번호 형식을 확인해주세요.\n";
+		        if(passwordValidationCode === 'b' || passwordValidationCode === "") {
+		            passwordErrMsg = "비밀번호를 입력해주세요.\n";
+		        }
+		        errMsg += passwordErrMsg;
+		        isValid = false;
+		    }
+
+		    if(userName === "") {
+		        errMsg += "이름을 입력해주세요.\n";
+		        isValid = false;
+		    }
+
+		    if(phoneNumValidationCode !== 'a') {
+		        let phoneNumErrMsg = "휴대전화번호 형식을 확인해주세요.\n";
+		        if(phoneNumValidationCode === 'b' || phoneNumValidationCode === "") {
+		            phoneNumErrMsg = "휴대전화번호를 입력해주세요 \n";
+		        }
+		        errMsg += phoneNumErrMsg;
+		        isValid = false;
+		    }
+
+		    if(email === "") {
+		        errMsg += "이메일을 입력해주세요.\n";
+		        isValid = false;
+		    }
+
+		    if (!isValid) {
+		        alert(errMsg);
+		    }
+
+		    return isValid;
+		}
+	</script>
+</body>
+
+</html>

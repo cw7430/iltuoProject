@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org"
+	xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+<title>주문상세보기</title>
+<th:block th:insert="~{fragments::head}" />
+</head>
+<body>
+	<!-- header section start -->
+	<th:block th:insert="~{fragments::sub_header}" />
+	<!-- header section end -->
+
+	<!-- contents section start -->
+	<div class="container">
+		<div class="row">
+			<div class="col mt-5">
+				<h2 class="mb-4">주문상세보기</h2>
+			</div>
+		</div>
+		<div class="d-none">
+			<input type="hidden" th:value="${#authentication.name}" id="userID" name="userID" readonly="readonly">
+		</div>
+		<div class="row">
+			<div class="col-lg-8">
+				<!-- 장바구니 항목 리스트 -->
+				<div class="card mb-4">
+					<div class="card-header">
+						<h4>구매 목록</h4>
+					</div>
+					<div id="cart-items">
+						<div class="card-body">
+							<div class="row">
+								<div class="col-md-3 d-flex align-items-center">
+									<h4 th:if="${payment.paymentStatusID.equals('PS0')}" th:text="${payment.paymentStatus}" style="color: red;"></h4>
+									<h4 th:if="${payment.paymentStatusID.equals('PS1')}" th:text="${payment.paymentStatus}" style="color: blue;"></h4>
+									<h4 th:if="${!payment.paymentStatusID.equals('PS0') AND !payment.paymentStatusID.equals('PS1')}" th:text="${payment.paymentStatus}"></h4>
+								</div>
+								<div class="col-md-6">
+									<th:block th:each="orderList : ${orderList}">
+										<h5 th:text="${orderList.productName}"></h5>
+										<th:block th:if="${orderList.majorOptionID != 0}">
+											<p>
+												<span th:text="${orderList.majorOptionCategory}"></span>
+												&nbsp; : &nbsp;<span th:text="${orderList.majorOptionName}"></span>
+											</p>
+										</th:block>
+										<th:block th:if="${orderList.subOptionID != 0}">
+											<p>
+												<span th:text="${orderList.subOptionCategory}"></span> &nbsp;
+												: &nbsp;<span th:text="${orderList.subOptionName}"></span>
+											</p>
+										</th:block>
+										<th:block th:if="${orderList.minerOptionID != 0}">
+											<p>
+												<span th:text="${orderList.minerOptionCategory}"></span>
+												&nbsp; : &nbsp;<span th:text="${orderList.minerOptionName}"></span>
+											</p>
+										</th:block>
+										<p>
+											개수 &nbsp; : &nbsp;<span th:text="${orderList.count} + '개'"></span>
+										</p>
+										<p>
+											총 가격 &nbsp; : &nbsp;<span th:text="${orderList.fmtTotalPrice}"></span>
+										</p>
+										<br>
+									</th:block>
+								</div>
+							</div>
+							<hr>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="col-lg-4">
+				<!-- 주문 요약 -->
+				<div class="card mb-4">
+					<div class="card-header">
+						<h4>주문 요약</h4>
+					</div>
+					<div class="card-body">
+						<p>
+							총 상품 가격: <span id="fmtTotalProductPrice" class="float-right" th:text="${payment.fmtProductPrice}"></span>
+						</p>
+						<p>
+							배송비: <span id="fmtDeliveryPrice" class="float-right"  th:text="${payment.fmtDeliveryPrice}"></span>
+						</p>
+						<span id="deliveryInfo" class="text-muted"></span>
+						<hr>
+						<h5>
+							총 주문금액: <span id="fmtFinalTotalPrice" class="float-right" th:text="${payment.fmtTotalPrice}"></span>
+						</h5>
+						<div class="row mt-4">
+							<div class="col-6" th:if="${payment.deliveryStatusID.equals('DS0')}">
+								<form th:action="@{/orderList/cancelOrder}" method="post" onsubmit="return confirmCancle();">
+									<input type="hidden" th:value="${#authentication.name}" name="userID" readonly="readonly">
+										<input type="hidden" name="priceID" th:value="${payment.priceID}" readonly="readonly">
+										<input type="hidden" name="deliveryStatusID" value="DS3" readonly="readonly">
+										<input type="hidden" name="orderStatusID" value="OS2" readonly="readonly">
+										<input type="hidden" name="viewOrder" value="b" readonly="readonly">
+										<th:block th:if="${payment.paymentStatusID.equals('PS0')}">
+											<input type="hidden" name="paymentStatusID" value="PS3" readonly="readonly">
+										</th:block>
+										<th:block th:if="${payment.paymentStatusID.equals('PS1')}">
+											<input type="hidden" name="paymentStatusID" value="PS2" readonly="readonly">
+										</th:block>
+									<button type="submit" class="btn btn-danger btn-block" style="color: #FFFFFF">취소하기</button>
+								</form>
+							</div>
+							<div class="col-6">
+								<a type="button" class="btn btn-info btn-block" th:href="@{/orderList(userID=${#authentication.name})}" style="color: #FFFFFF">목록으로</a>
+							</div>
+						</div>
+					</div>
+				</div>
+				<div class="card mb-4" th:if="${payment.paymentMethodID.equals('PM1') AND payment.paymentStatusID.equals('PS0')}">
+					<div class="card-header">
+						<h4>무통장입금 안내</h4>
+					</div>
+					<div class="card-body">
+						<p>은행명: 신한은행</p>
+						<p>계좌번호: 110-456-789123</p>
+						<p>입금자명: 최사장</p>
+					</div>
+				</div>
+				<div class="card mb-4" th:if="${!payment.paymentStatusID.equals('PS0')}">
+					<div class="card-header">
+						<h4>배송정보</h4>
+					</div>
+					<div class="card-body">
+						<h5>배송상태</h5>
+						<span th:if="${!payment.deliveryStatusID.equals('DS3')}" th:text="${payment.deliveryStatus}" style="color: blue;"></span>
+						<span th:if="${payment.deliveryStatusID.equals('DS3')}" th:text="${payment.deliveryStatus}"></span>
+						<br><br>
+						<h5>주소</h5>
+						<span th:text="${address.fullAddress}"></span>
+						<br><br>
+						<th:block th:if="${payment.courierCompany != null}">
+							<h5>택배사</h5>
+							<span th:text="${payment.courierCompany}"></span>
+							<br><br>
+							<th:block th:if="${payment.invoiceNumber != null}">
+								<h5>송장번호</h5>
+								<span th:text="${payment.invoiceNumber}"></span>
+							</th:block>
+						</th:block>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<!-- contents section end -->
+
+	<!-- footer section start -->
+	<th:block th:insert="~{fragments::footer}" />
+	<!-- footer section end -->
+
+	<!-- Javascript files-->
+	<th:block th:insert="~{fragments::script}" />
+	<script th:inline="javascript">
+		document.addEventListener('DOMContentLoaded', () => {
+			let m = /*[[${msg}]]*/ '기본값';
+		    if (m !== null && m !== '기본값') {
+		        alert(m);
+		    }
+		});
+		
+		function confirmCancle() {
+			let isValid = true;
+			let confirmMsg = "결제를 취소하시겠습니까?";
+			
+			if (!confirm(confirmMsg)) {
+				isValid = false;
+			}
+			
+			return isValid;
+		}
+	</script>
+</body>
+</html>

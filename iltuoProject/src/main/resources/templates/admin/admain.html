@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org"
+	xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+<title>Coffo</title>
+<th:block th:insert="~{fragments::head}" />
+</head>
+
+<body>
+	<th:block th:insert="~{fragments::admain_header}" />
+	<!-- header section end -->
+	<!-- coffee section start -->
+	<div class="coffee_section layout_padding">
+		<div class="container">
+			<div class="row">
+				<div class="col-md-12">
+					<h1 class="coffee_taital">추천상품</h1>
+				</div>
+			</div>
+		</div>
+		<div class="coffee_section_2">
+			<div id="main_slider" class="carousel slide" data-ride="carousel">
+				<div class="carousel-inner">
+					<div th:each="group, groupStat : ${groupRecommenedProductList}"
+						class="carousel-item"
+						th:classappend="${groupStat.index == 0} ? 'active'">
+						<div class="container-fluid">
+							<div class="row">
+								<div th:each="item : ${group}" class="col-lg-3 col-md-6">
+									<a
+										th:href="@{/productDetail(mainCategoryID=${item.mainCategoryID},productID=${item.productID})}">
+										<span class="coffee_img"> <img
+											th:src="@{/images/product/{imageName}(imageName=${item.productImageName})}">
+									</span> <span class="coffee_box"> <span class="types_text"
+											th:text="${item.productName}"></span> <span
+											class="looking_text" th:text="${item.productComments}"></span>
+											<span class="types_text" th:text="${item.fmtPrice}"></span>
+									</span>
+									</a>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+				<a class="carousel-control-prev" href="#main_slider" role="button"
+					data-slide="prev"> <i class="fa fa-arrow-left"></i>
+				</a> <a class="carousel-control-next" href="#main_slider" role="button"
+					data-slide="next"> <i class="fa fa-arrow-right"></i>
+				</a>
+			</div>
+		</div>
+	</div>
+	<!-- coffee section end -->
+	<!-- contact section start -->
+	<div class="contact_section layout_padding">
+		<div class="container">
+			<div class="row">
+				<div class="col-sm-12">
+					<h1 class="contact_taital">찾아오시는길</h1>
+				</div>
+			</div>
+		</div>
+		<div class="container-fluid">
+			<div class="contact_section_2">
+				<div class="row">
+					<div class="map_main">
+						<div class="map-responsive">
+							<iframe
+								th:src="@{https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d5494.810581814787!2d127.0436767144874!3d37.289868866325826!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x357b5b5db0b34541%3A0x4f2cc8e5c6014f2b!2z6rK96riw64-EIOyImOybkOyLnCDsmIHthrXqtawg7J207J2Y64-ZIDEzNDgtMw!5e0!3m2!1sko!2skr!4v1719561701023!5m2!1sko!2skr}"
+								width="250" height="500" style="border: 0; width: 100%;"></iframe>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<!-- contact section end -->
+	<!-- footer section start -->
+	<th:block th:insert="~{fragments::footer}" />
+	<!-- footer section end -->
+	<!-- Javascript files-->
+	<th:block th:insert="~{fragments::script}" />
+	<script th:inline="javascript">
+		document.addEventListener('DOMContentLoaded', () => {
+			let m = /*[[${msg}]]*/ '기본값';
+		    if (m !== null && m !== '기본값') {
+		        alert(m);
+		    }
+		});
+	</script>
+</body>
+
+</html>

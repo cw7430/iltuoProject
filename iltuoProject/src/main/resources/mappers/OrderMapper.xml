@@ -1,0 +1,337 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="kr.co.iltuo.mapper.OrderMapper">
+	<!-- 가격 삽입 -->
+	<insert id="insertPrice" parameterType="ShopDTO" useGeneratedKeys="true" keyProperty="priceID">
+		<![CDATA[
+			INSERT INTO
+				price (
+					userID,
+					totalPrice,
+					deliveryPriceStatusID,
+					priceDate
+				)
+			VALUES
+				(
+				#{userID},
+				#{finalTotalPrice},
+				#{deliveryPriceStatusID},
+				now()
+				)
+		]]>
+	</insert>
+	<!-- 1건 주문 -->
+	<insert id="insertOrderOne" parameterType="ShopDTO" useGeneratedKeys="true" keyProperty="orderID">
+		<![CDATA[
+			INSERT INTO
+				`order` (
+					userID,
+					productID,
+					priceID,
+					count,
+					originalPrice,
+					orderPrice,
+					orderStatusID,
+					majorOptionID,
+					majorOptionAdjustedPrice,
+					subOptionID,
+					subOptionAdjustedPrice,
+					minerOptionID,
+					minerOptionAdjustedPrice,
+					orderDate
+				)
+			VALUES
+				(
+				#{userID},
+				#{productID},
+				0,
+				#{count},
+				#{originalPrice},
+				#{orderPrice},
+				'OS0',
+				#{majorOptionID},
+				0,
+				#{subOptionID},
+				0,
+				#{minerOptionID},
+				0,
+				now()
+				)
+		]]>
+	</insert>
+	<select id="getOrderOne" resultType="ShopDTO">
+		<![CDATA[	
+			SELECT
+				b.productImageName, b.productName, b.price, a.productID, a.orderID,
+				a.count, a.majorOptionID, a.subOptionID, a.minerOptionID,
+				c.optionGrade, d.majorOptionCategory, d.majorOptionName,
+				d.isPriceChangeID as majorOptionIsPriceChangeID,
+				d.priceChanges as majorOptionPriceChanges, e.subOptionCategory,
+				e.subOptionName, e.isPriceChangeID as subOptionIsPriceChangeID,
+				e.priceChanges as subOptionPriceChanges, f.minerOptionCategory,
+				f.minerOptionName, f.isPriceChangeID as minerOptionIsPriceChangeID,
+				f.priceChanges as minerOptionPriceChanges
+			FROM
+				`order` a
+				JOIN product b ON a.productID = b.productID
+				JOIN maincategory c ON b.mainCategoryID = c.mainCategoryID
+				LEFT JOIN majoroption d ON a.majorOptionID = d.majorOptionID
+				LEFT JOIN suboption e ON a.subOptionID = e.subOptionID
+				LEFT JOIN mineroption f ON a.minerOptionID = f.minerOptionID
+			WHERE
+				a.orderID = #{orderID}
+			AND
+				a.userID = #{userID}
+		]]>
+	</select>
+	<update id="setPriceID" parameterType="ShopDTO">
+		<![CDATA[
+			UPDATE
+				`order`
+			SET
+				priceID = #{priceID},
+				majorOptionAdjustedPrice = #{majorOptionAdjustedPrice},
+				subOptionAdjustedPrice = #{subOptionAdjustedPrice},
+				minerOptionAdjustedPrice = #{minerOptionAdjustedPrice}
+			WHERE
+				orderID = #{orderID}
+		]]>
+	</update>
+	<!-- 여러건 주문 -->
+	<insert id="insertOrderMultiple" parameterType="java.util.List">
+		<![CDATA[
+			INSERT INTO
+				`order` (
+					userID,
+					productID,
+					priceID,
+					count,
+					originalPrice,
+					orderPrice,
+					orderStatusID,
+					majorOptionID,
+					majorOptionAdjustedPrice,
+					subOptionID,
+					subOptionAdjustedPrice,
+					minerOptionID,
+					minerOptionAdjustedPrice,
+					orderDate
+				)
+			VALUES
+		]]>
+		<foreach collection="cartList" item="item" separator=",">
+			<![CDATA[
+					(
+					#{item.userIDForOrder},
+					#{item.productID},
+					#{item.priceID},
+					#{item.count},
+					#{item.originalPrice},
+					#{item.orderPrice},
+					'OS0',
+					#{item.majorOptionID},
+					#{item.majorOptionAdjustedPrice},
+					#{item.subOptionID},
+					#{item.subOptionAdjustedPrice},
+					#{item.minerOptionID},
+					#{item.minerOptionAdjustedPrice},
+					now()
+					)
+			]]>
+		</foreach>
+	</insert>
+	<!-- 가격 불러오기 -->
+	<select id="getPrice" resultType="OrderDTO">
+		<![CDATA[	
+			SELECT
+				priceID, userID, totalPrice, deliveryPriceStatusID
+			FROM
+				price
+			WHERE
+				priceID = #{priceID}
+			AND
+				userID = #{userID}
+		]]>
+	</select>
+	<delete id="deleteAllCart">
+		<![CDATA[
+			DELETE FROM
+				cart
+			WHERE
+				userID = #{userID}
+		]]>
+	</delete>
+	<insert id="insertPayment" parameterType="OrderDTO">
+		<![CDATA[
+			INSERT INTO
+				payment (
+					priceID,
+					paymentMethodID,
+					paymentStatusID,
+					paymentDate
+					)
+			VALUES (
+				#{priceID},
+				#{paymentMethodID},
+				#{paymentStatusID},
+				now()
+				)
+		]]>
+	</insert>
+	<insert id="insertUnregisteredAddress" parameterType="UserDTO" useGeneratedKeys="true" keyProperty="addressID">
+		<![CDATA[
+			INSERT INTO
+				address (
+					userID,
+					postalCode,
+					address,
+					detailAddress,
+					extraAddress,
+					isMainID,
+					optionValidID
+				)
+			VALUES
+				(
+					#{userID},
+					#{postalCode},
+					#{address},
+					#{detailAddress},
+					#{extraAddress},
+					#{isMainID},
+					#{optionValidID}
+				)
+		]]>
+	</insert>
+	<insert id="insertDeliveryAddress" parameterType="OrderDTO">
+		<![CDATA[
+			INSERT INTO
+				delivery (
+					priceID,
+					deliveryStatusID,
+					addressID
+					)
+			VALUES (
+				#{priceID},
+				'DS0',
+				#{addressID}
+				)
+		]]>
+	</insert>
+	<update id="updateOrderStatus" parameterType="OrderDTO">
+		<![CDATA[
+			UPDATE
+				`order`
+			SET
+				orderStatusID = #{orderStatusID}
+			WHERE
+				priceID = #{priceID}
+		]]>
+	</update>
+	<!-- 주문내역 -->
+	<select id="getPaymentList" resultType="OrderDTO">
+		<![CDATA[
+			SELECT
+				a.priceID, a.paymentDate, a.paymentStatusID, b.totalPrice,
+				d.deliveryStatusID, c.codeName AS paymentMethod,
+				e.codeName AS status
+			FROM
+				payment a
+			JOIN
+				price b ON a.priceID = b.priceID
+			JOIN
+				`code` c ON a.paymentMethodID = c.codeID
+			JOIN
+				delivery d ON a.priceID = d.priceID
+			JOIN
+				`code` e ON (
+					(a.paymentStatusID IN ('PS0', 'PS2', 'PS3') AND a.paymentStatusID = e.codeID) OR
+					(a.paymentStatusID NOT IN ('PS0', 'PS2', 'PS3') AND d.deliveryStatusID = e.codeID)
+				)
+			WHERE
+				b.userID = #{userID}
+			ORDER BY
+				a.paymentStatusID ASC,
+				a.priceID DESC
+		]]>
+	</select>
+	<select id="getPaymentOne" resultType="OrderDTO">
+		<![CDATA[
+			SELECT
+				a.priceID, a.paymentDate, a.paymentStatusID, a.paymentMethodID ,b.totalPrice,
+				d.deliveryStatusID, c.codeName AS paymentMethod, b.deliveryPriceStatusID,
+				e.codeName AS paymentStatus, f.codeName AS deliveryStatus, d.deliveryStatusID,
+				d.courierCompany, d.invoiceNumber
+			FROM
+				payment a
+			JOIN
+				price b ON a.priceID = b.priceID
+			JOIN
+				`code` c ON a.paymentMethodID = c.codeID
+			LEFT JOIN
+				delivery d ON a.priceID = d.priceID
+			JOIN
+				`code` e ON a.paymentStatusID = e.codeID
+			JOIN
+				`code` f ON d.deliveryStatusID = f.codeID
+			WHERE
+				a.priceID = #{priceID}
+		]]>
+	</select>
+	<select id="getOrderList" resultType="ShopDTO">
+		<![CDATA[
+			SELECT
+				b.productName, a.orderPrice, a.productID, a.orderID,
+				a.count, a.majorOptionID, a.subOptionID, a.minerOptionID,
+				c.optionGrade, d.majorOptionCategory, d.majorOptionName,
+				d.isPriceChangeID as majorOptionIsPriceChangeID,
+				d.priceChanges as majorOptionPriceChanges, e.subOptionCategory,
+				e.subOptionName, e.isPriceChangeID as subOptionIsPriceChangeID,
+				e.priceChanges as subOptionPriceChanges, f.minerOptionCategory,
+				f.minerOptionName, f.isPriceChangeID as minerOptionIsPriceChangeID,
+				f.priceChanges as minerOptionPriceChanges
+			FROM
+				`order` a
+				JOIN product b ON a.productID = b.productID
+				JOIN maincategory c ON b.mainCategoryID = c.mainCategoryID
+				LEFT JOIN majoroption d ON a.majorOptionID = d.majorOptionID
+				LEFT JOIN suboption e ON a.subOptionID = e.subOptionID
+				LEFT JOIN mineroption f ON a.minerOptionID = f.minerOptionID
+			WHERE
+				a.priceID = #{priceID}
+		]]>
+	</select>
+	<select id="getOrderAddress" resultType="UserDTO">
+		<![CDATA[
+			SELECT
+				a.addressID, b.postalCode, b.address, b.detailAddress,
+				b.extraAddress
+			FROM
+				delivery a
+			JOIN
+				address b ON a.addressID = b.addressID
+			WHERE
+				a.priceID = #{priceID}
+		]]>
+	</select>
+	<!-- 환불 -->
+	<update id="updateDeliveryStatus">
+		<![CDATA[
+			UPDATE
+				`delivery`
+			SET
+				deliveryStatusID = #{deliveryStatusID}
+			WHERE
+				priceID = #{priceID}
+		]]>
+	</update>
+	<update id="updatePaymentStatus">
+		<![CDATA[
+			UPDATE
+				`payment`
+			SET
+				paymentStatusID = #{paymentStatusID}
+			WHERE
+				priceID = #{priceID}
+		]]>
+	</update>
+</mapper>

@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org"
+	xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+
+<head th:fragment="head">
+<!-- basic -->
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<!-- mobile metas -->
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="initial-scale=1, maximum-scale=1">
+<!-- site metas -->
+<meta name="keywords" content="">
+<meta name="description" content="">
+<meta name="author" content="">
+<!-- bootstrap css -->
+<link rel="stylesheet" type="text/css"
+	th:href="@{css/bootstrap.min.css}">
+<!-- style css -->
+<link rel="stylesheet" type="text/css" th:href="@{css/style.css}">
+<!-- Responsive-->
+<link rel="stylesheet" type="text/css" th:href="@{css/responsive.css}">
+<!-- fevicon -->
+<link rel="icon" type="image/gif" th:href="@{images/fevicon.png}" />
+<!-- font css -->
+<link rel="stylesheet" type="text/css"
+	th:href="@{https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800&display=swap}">
+<!-- Scrollbar Custom CSS -->
+<link rel="stylesheet" type="text/css"
+	th:href="@{css/jquery.mCustomScrollbar.min.css}">
+<!-- Tweaks for older IEs-->
+<link rel="stylesheet" type="text/css"
+	th:href="@{https://netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.min.css}">
+</head>
+
+<body>
+	<!-- Main Header Start -->
+	<div th:fragment="main_header" class="header_section">
+		<div class="container">
+			<nav class="navbar navbar-expand-lg navbar-light bg-light">
+				<a class="navbar-brand" th:href="@{/}"><img
+					src="images/logo.png"></a>
+				<button class="navbar-toggler" type="button" data-toggle="collapse"
+					data-target="#navbarSupportedContent"
+					aria-controls="navbarSupportedContent" aria-expanded="false"
+					aria-label="Toggle navigation">
+					<span class="navbar-toggler-icon"></span>
+				</button>
+				<div class="collapse navbar-collapse" id="navbarSupportedContent">
+					<ul class="navbar-nav mr-auto">
+						<li class="nav-item" th:each="shop : ${shop}"><a
+							class="nav-link"
+							th:href="@{/productList(mainCategoryID=${shop.mainCategoryID})}">
+								<span th:text="${shop.mainCategoryName}"></span>
+						</a></li>
+					</ul>
+					<form class="form-inline my-2 my-lg-0"
+						style="justify-content: right;">
+						<div class="login_bt" style="width: 283px;"
+							sec:authorize="!isAuthenticated()">
+							<ul>
+								<li><a th:href="@{/login}"> <span class="user_icon">
+											<i class="fa fa-user" aria-hidden="true"></i>
+									</span> 로그인
+								</a></li>
+								<li><a th:href="@{/join}"> 회원가입 </a></li>
+							</ul>
+						</div>
+						<div class="login_bt" style="width: 549px;"
+							sec:authorize="isAuthenticated()">
+							<ul>
+								<li sec:authorize="hasRole('ROLE_USER')"><a th:href="@{/cart(userID=${#authentication.name})}">
+										<span> <i class="fa fa-shopping-cart"
+											aria-hidden="true"></i> 장바구니
+									</span>
+								</a></li>
+								<li sec:authorize="hasRole('ROLE_USER')"><a th:href="@{/orderList(userID=${#authentication.name})}">
+										주문내역 </a></li>
+								<li><a
+									th:href="@{/myProfile(userID=${#authentication.name})}"> <span
+										class="user_icon"> <i class="fa fa-user"
+											aria-hidden="true"></i>
+									</span> 내 프로필
+								</a></li>
+								<li><a th:href="@{/logout}"> 로그아웃 </a></li>
+								<li sec:authorize="hasRole('ROLE_ADMIN')"><a th:href="@{/admain}"> 관리자모드 </a></li>
+							</ul>
+						</div>
+					</form>
+				</div>
+			</nav>
+		</div>
+		<!-- banner section start -->
+		<div class="banner_section layout_padding">
+			<div class="container">
+				<div class="row">
+					<div class="col-md-12">
+						<div class="banner_taital_main">
+							<h1 class="banner_taital">
+								Iltuo <br>Coffee
+							</h1>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+		<!-- banner section end -->
+	</div>
+	<!-- Main Header End -->
+
+	<!-- Sub Header Start -->
+	<div th:fragment="sub_header" class="header_section header_bg">
+		<div class="container">
+			<nav class="navbar navbar-expand-lg navbar-light bg-light">
+				<a class="navbar-brand" th:href="@{/}"><img
+					src="images/logo.png"></a>
+				<button class="navbar-toggler" type="button" data-toggle="collapse"
+					data-target="#navbarSupportedContent"
+					aria-controls="navbarSupportedContent" aria-expanded="false"
+					aria-label="Toggle navigation">
+					<span class="navbar-toggler-icon"></span>
+				</button>
+				<div class="collapse navbar-collapse" id="navbarSupportedContent">
+					<ul class="navbar-nav mr-auto">
+						<li class="nav-item" th:each="shop : ${shop}"><a
+							class="nav-link"
+							th:href="@{/productList(mainCategoryID=${shop.mainCategoryID})}">
+								<span th:text="${shop.mainCategoryName}"></span>
+						</a></li>
+					</ul>
+					<form class="form-inline my-2 my-lg-0">
+						<div class="login_bt" style="width: 283px;"
+							sec:authorize="!isAuthenticated()">
+							<ul>
+								<li><a th:href="@{/login}"> <span class="user_icon">
+											<i class="fa fa-user" aria-hidden="true"></i>
+									</span> 로그인
+								</a></li>
+								<li><a th:href="@{/join}"> 회원가입 </a></li>
+							</ul>
+						</div>
+						<div class="login_bt" style="width: 549px;"
+							sec:authorize="isAuthenticated()">
+							<ul>
+								<li sec:authorize="hasRole('ROLE_USER')"><a th:href="@{/cart(userID=${#authentication.name})}">
+										<span> <i class="fa fa-shopping-cart"
+											aria-hidden="true"></i> 장바구니
+									</span>
+								</a></li>
+								<li sec:authorize="hasRole('ROLE_USER')"><a th:href="@{/orderList(userID=${#authentication.name})}">
+										주문내역 </a></li>
+								<li><a
+									th:href="@{/myProfile(userID=${#authentication.name})}"> <span
+										class="user_icon"> <i class="fa fa-user"
+											aria-hidden="true"></i>
+									</span> 내 프로필
+								</a></li>
+								<li><a th:href="@{/logout}"> 로그아웃 </a></li>
+								<li sec:authorize="hasRole('ROLE_ADMIN')"><a th:href="@{/admain}"> 관리자모드 </a></li>
+							</ul>
+						</div>
+					</form>
+				</div>
+			</nav>
+		</div>
+	</div>
+	<!-- Sub Header End -->
+	
+	<!-- admain Header Start -->
+	<div th:fragment="admain_header" class="header_section">
+		<div class="container">
+			<nav class="navbar navbar-expand-lg navbar-light bg-light">
+				<a class="navbar-brand" th:href="@{/admain}"><img
+					src="images/logo.png"></a>
+				<button class="navbar-toggler" type="button" data-toggle="collapse"
+					data-target="#navbarSupportedContent"
+					aria-controls="navbarSupportedContent" aria-expanded="false"
+					aria-label="Toggle navigation">
+					<span class="navbar-toggler-icon"></span>
+				</button>
+				<div class="collapse navbar-collapse" id="navbarSupportedContent">
+					<ul class="navbar-nav mr-auto">
+						<li class="nav-item">
+							<a class="nav-link" th:href="@{/categoryManagement}">
+								<span>분류관리</span>
+							</a>
+						</li>
+						<li class="nav-item">
+							<a class="nav-link" th:href="@{/productList}">
+								<span>상품관리</span>
+							</a>
+						</li>
+						<li class="nav-item">
+							<a class="nav-link" th:href="@{/productList}">
+								<span>주문관리</span>
+							</a>
+						</li>
+					</ul>
+					<form class="form-inline my-2 my-lg-0"
+						style="justify-content: right;">
+						<div class="login_bt" style="width: 283px;">
+							<ul>
+								<li><a th:href="@{/logout}"> 로그아웃 </a></li>
+								<li><a th:href="@{/}"> 일반모드 </a></li>
+							</ul>
+						</div>
+					</form>
+				</div>
+			</nav>
+		</div>
+		<!-- banner section start -->
+		<div class="banner_section layout_padding">
+			<div class="container">
+				<div class="row">
+					<div class="col-md-12">
+						<div class="banner_taital_main">
+							<h1 class="banner_taital">
+								Iltuo <br>Coffee
+							</h1>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+		<!-- banner section end -->
+	</div>
+	<!-- admain Header End -->
+
+	<!-- Admin Sub Header Start -->
+	<div th:fragment="admin_sub_header" class="header_section header_bg">
+		<div class="container">
+			<nav class="navbar navbar-expand-lg navbar-light bg-light">
+				<a class="navbar-brand" th:href="@{/admain}"><img
+					src="images/logo.png"></a>
+				<button class="navbar-toggler" type="button" data-toggle="collapse"
+					data-target="#navbarSupportedContent"
+					aria-controls="navbarSupportedContent" aria-expanded="false"
+					aria-label="Toggle navigation">
+					<span class="navbar-toggler-icon"></span>
+				</button>
+				<div class="collapse navbar-collapse" id="navbarSupportedContent">
+					<ul class="navbar-nav mr-auto">
+						<li class="nav-item">
+							<a class="nav-link" th:href="@{/categoryManagement}">
+								<span>분류관리</span>
+							</a>
+						</li>
+						<li class="nav-item">
+							<a class="nav-link" th:href="@{/productList}">
+								<span>상품관리</span>
+							</a>
+						</li>
+						<li class="nav-item">
+							<a class="nav-link" th:href="@{/productList}">
+								<span>주문관리</span>
+							</a>
+						</li>
+					</ul>
+					<form class="form-inline my-2 my-lg-0">
+						<div class="login_bt" style="width: 283px;">
+							<ul>
+								<li><a th:href="@{/logout}"> 로그아웃 </a></li>
+								<li><a th:href="@{/}"> 일반모드 </a></li>
+							</ul>
+						</div>
+					</form>
+				</div>
+			</nav>
+		</div>
+	</div>
+	<!--Admin Sub Header End -->
+	
+	<!-- footer section start -->
+	<div th:fragment="footer" class="footer_section layout_padding">
+		<div class="container">
+			<div class="row">
+				<div class="col-md-12">
+					<div class="location_text">
+						<ul>
+							<li><i aria-hidden="true">일투오커피 대표이사 : 최사장</i></li>
+						</ul>
+						<ul>
+							<li><i aria-hidden="true">사업자등록번호 : 111-22-333333</i></li>
+						</ul>
+						<ul>
+							<li><i aria-hidden="true">사업장주소 : 경기도 수원시 영통구 도청로89번길
+									30, 이루리타워 501호 (이의동)</i></li>
+						</ul>
+					</div>
+					<div class="location_text">
+						<ul>
+							<li><a href="#"> <i class="fa fa-phone"
+									aria-hidden="true"></i><span class="padding_left_10">+01
+										1234567890</span>
+							</a></li>
+							<li><a href="#"> <i class="fa fa-envelope"
+									aria-hidden="true"></i><span class="padding_left_10">demo@gmail.com</span>
+							</a></li>
+						</ul>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<!-- footer section end -->
+
+	<!-- script start -->
+	<th:block th:fragment="script">
+		<!-- Javascript files-->
+		<script th:src="@{js/jquery.min.js}"></script>
+		<script th:src="@{js/popper.min.js}"></script>
+		<script th:src="@{js/bootstrap.bundle.min.js}"></script>
+		<script th:src="@{js/jquery-3.0.0.min.js}"></script>
+		<script th:src="@{js/plugin.js}"></script>
+		<!-- sidebar -->
+		<script th:src="@{js/jquery.mCustomScrollbar.concat.min.js}"></script>
+		<script th:src="@{js/custom.js}"></script>
+	</th:block>
+	<!-- script end -->
+
+</body>
+
+</html>

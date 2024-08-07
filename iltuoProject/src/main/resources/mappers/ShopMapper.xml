@@ -1,0 +1,330 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="kr.co.iltuo.mapper.ShopMapper">
+	<!-- 대분류 구성 -->
+	<select id="getMainCategoryList" resultType="ShopDTO">
+		<![CDATA[
+			SELECT
+				*
+			FROM
+				maincategory
+			WHERE
+				optionValidID = 'OPV0'
+		]]>
+	</select>
+	<!-- 대분류 가져오기 -->
+	<select id="getMainCategoryID" resultType="ShopDTO">
+		<![CDATA[
+			SELECT
+				*
+			FROM
+				maincategory
+			WHERE
+				mainCategoryID = #{mainCategoryID}
+		]]>
+	</select>
+	<!-- 소분류 구성 -->
+	<select id="getSubCategoryList" resultType="ShopCriteria">
+		<![CDATA[
+			SELECT
+				*
+			FROM
+				subcategory
+			Where
+				mainCategoryID = #{mainCategoryID}
+			AND
+				optionValidID = 'OPV0'
+		]]>
+	</select>
+	<!-- 상품리스트 -->
+	<select id="productList" resultType="ShopDTO" parameterType="ShopCriteria">
+		<![CDATA[
+			SELECT
+				p.productID,
+				p.mainCategoryID,
+				p.subCategoryID,
+				m.mainCategoryName,
+				s.subCategoryName,
+				p.productName,
+				p.productComments,
+				p.price,
+				p.registrationDate,
+				p.productImageName
+			FROM
+				product p
+				JOIN maincategory m
+					ON p.mainCategoryID = m.mainCategoryID
+				LEFT JOIN subcategory s
+					ON p.subCategoryID = s.subCategoryID
+			WHERE
+				p.disContinuedStatusID = 'DC0'
+			AND
+				p.mainCategoryID = #{mainCategoryID}
+		]]>
+			<if test="subCategoryID != 0">
+				<![CDATA[
+					AND
+						p.subCategoryID = #{subCategoryID}
+				]]>
+			</if>
+		<![CDATA[
+			ORDER BY
+		]]>
+		<choose>
+			<when test="sortOrder == 1">
+				<![CDATA[
+					p.price ASC,
+				]]>
+			</when>
+			<when test="sortOrder == 2">
+				<![CDATA[
+					p.price DESC,
+				]]>
+			</when>
+		</choose>
+		<![CDATA[
+				p.productID DESC
+			LIMIT
+				#{pageStart}, #{perPageNum}
+		]]>
+	</select>
+	<!-- 상품 전체 레코드 수 -->
+	<select id="getTotalCountProduct" resultType="java.lang.Integer" parameterType="ShopCriteria">
+		<![CDATA[
+			SELECT COUNT(*)
+			FROM
+				product p
+				JOIN maincategory m
+					ON p.mainCategoryID = m.mainCategoryID
+				LEFT JOIN subcategory s
+					ON p.subCategoryID = s.subCategoryID
+				WHERE
+					disContinuedStatusID = 'DC0'
+				AND
+					p.mainCategoryID = #{mainCategoryID}
+		]]>
+				<if test="subCategoryID != 0">
+					<![CDATA[
+						AND
+							p.subCategoryID = #{subCategoryID}
+					]]>
+				</if>
+		
+	</select>
+	<!-- 추천상품 목록 -->
+	<select id="recommenedProductList" resultType="ShopDTO" parameterType="ShopCriteria">
+		<![CDATA[
+			SELECT
+				p.productID,
+				p.mainCategoryID,
+				p.subCategoryID,
+				m.mainCategoryName,
+				s.subCategoryName,
+				p.productName,
+				p.productComments,
+				p.price,
+				p.registrationDate,
+				p.productImageName
+			FROM
+				product p
+				JOIN maincategory m
+					ON p.mainCategoryID = m.mainCategoryID
+				LEFT JOIN subcategory s
+					ON p.subCategoryID = s.subCategoryID
+			WHERE
+				p.recommendationID = 'RC1'
+			ORDER BY
+				p.mainCategoryID ASC
+		]]>
+	</select>
+	<!-- 상품 상세보기 -->
+	<select id="productDetail" resultType="ShopDTO">
+		<![CDATA[
+			SELECT
+				p.productID, p.mainCategoryID, p.mainCategoryID, p.subCategoryID,
+				p.productName, p.productComments, p.price, p.productImageName,
+				m.optionGrade
+			FROM
+				product p
+				JOIN maincategory m
+					ON p.mainCategoryID = m.mainCategoryID
+			WHERE
+				p.productID = #{productID}
+		]]>
+	</select>
+	<!-- 옵션 목록 -->
+	<select id="getOptionList" resultType="ShopDTO">
+		<![CDATA[
+			SELECT DISTINCT
+				b.majorOptionCategory,
+				c.subOptionCategory,
+				d.minerOptionCategory
+			FROM
+				maincategory a
+				LEFT JOIN majoroption b
+					ON a.mainCategoryID = b.maincategoryID
+				LEFT JOIN suboption c
+					ON a.mainCategoryID = c.maincategoryID
+				LEFT JOIN mineroption d
+					ON a.mainCategoryID = d.maincategoryID
+			WHERE
+				a.mainCategoryID = #{mainCategoryID}
+		]]>
+	</select>
+	<!-- MajorOption 목록 -->
+	<select id="getMajorOptionList" resultType="ShopDTO">
+		<![CDATA[
+			SELECT
+				a.majorOptionID, a.majorOptionCategory, a.mainCategoryID, a.majorOptionName,
+				b.price , a.isPriceChangeID as majorOptionIsPriceChangeID,
+				a.priceChanges as majorOptionPriceChanges
+			FROM
+				majoroption a
+				JOIN product b
+					ON a.mainCategoryID = b.maincategoryID
+			WHERE
+				b.productID = #{productID}
+			AND
+				a.optionValidID = 'OPV0'
+			ORDER BY
+				sortOrder ASC
+		]]>
+	</select>
+	<!-- MajorOption 가격 가져오기 -->
+	<select id="getMajorOptionPrice" resultType="ShopDTO">
+		<![CDATA[
+			SELECT
+				a.majorOptionID, a.majorOptionCategory, a.mainCategoryID, a.majorOptionName,
+				b.price, a.isPriceChangeID as majorOptionIsPriceChangeID,
+				a.priceChanges as majorOptionPriceChanges
+			FROM
+				majoroption a
+				JOIN product b
+					ON a.mainCategoryID = b.maincategoryID
+			WHERE
+				b.productID = #{productID}
+			AND
+				a.majorOptionID = #{majorOptionID}
+		]]>
+	</select>
+	<!-- SubOption 목록 -->
+	<select id="getSubOptionList" resultType="ShopDTO">
+		<![CDATA[
+			SELECT
+				a.subOptionID, a.subOptionCategory, a.mainCategoryID, a.subOptionName,
+				b.price, a.isPriceChangeID as subOptionIsPriceChangeID,
+				a.priceChanges as subOptionPriceChanges
+			FROM
+				suboption a
+				JOIN product b
+					ON a.mainCategoryID = b.maincategoryID
+			WHERE
+				b.productID = #{productID}
+			AND
+				a.optionValidID = 'OPV0'
+			ORDER BY
+				sortOrder ASC
+		]]>
+	</select>
+	<!-- subOption 한 건 조회 -->
+	<select id="getSubOptionOne" resultType="ShopDTO">
+		<![CDATA[
+			SELECT
+				subOptionID, subOptionCategory, mainCategoryID,
+				subOptionName, isPriceChangeID as subOptionIsPriceChangeID,
+				priceChanges as subOptionPriceChanges
+			FROM
+				suboption
+			WHERE
+				subOptionID = #{subOptionID}
+		]]>
+	</select>
+	<!-- MinerOption 목록 -->
+	<select id="getMinerOptionList" resultType="ShopDTO">
+		<![CDATA[
+			SELECT
+				a.minerOptionID, a.minerOptionCategory, a.mainCategoryID, a.minerOptionName,
+				b.price, a.isPriceChangeID as minerOptionIsPriceChangeID,
+				a.priceChanges as minerOptionPriceChanges
+			FROM
+				mineroption a
+				JOIN product b
+					ON a.mainCategoryID = b.maincategoryID
+			WHERE
+				b.productID = #{productID}
+			AND
+				a.optionValidID = 'OPV0'
+			ORDER BY
+				sortOrder ASC
+		]]>
+	</select>
+	<!-- minerOption 한 건 조회 -->
+	<select id="getMinerOptionOne" resultType="ShopDTO">
+		<![CDATA[
+			SELECT
+				minerOptionID, minerOptionCategory, mainCategoryID,
+				minerOptionName, isPriceChangeID as minerOptionIsPriceChangeID,
+				priceChanges as minerOptionPriceChanges
+			FROM
+				mineroption
+			WHERE
+				minerOptionID = #{minerOptionID}
+		]]>
+	</select>
+	<!-- 장바구니에 담기 -->
+	<insert id="insertCart" parameterType="ShopDTO">
+		<![CDATA[
+			INSERT INTO
+				cart (
+					userID,
+					productID,
+					count,
+					majorOptionID,
+					subOptionID,
+					minerOptionID
+				)
+			VALUES
+				(
+				#{userID},
+				#{productID},
+				#{count},
+				#{majorOptionID},
+				#{subOptionID},
+				#{minerOptionID}
+				)
+		]]>
+	</insert>
+	<!-- 장바구니 조회 -->
+	<select id="getCartList" resultType="ShopDTO">
+		<![CDATA[	
+			SELECT
+				b.productImageName, b.productName, b.price, a.productID, a.cartID,
+				a.count, a.majorOptionID, a.subOptionID, a.minerOptionID, a.userID,
+				c.optionGrade, d.majorOptionCategory, d.majorOptionName,
+				d.isPriceChangeID as majorOptionIsPriceChangeID,
+				d.priceChanges as majorOptionPriceChanges, e.subOptionCategory,
+				e.subOptionName, e.isPriceChangeID as subOptionIsPriceChangeID,
+				e.priceChanges as subOptionPriceChanges, f.minerOptionCategory,
+				f.minerOptionName, f.isPriceChangeID as minerOptionIsPriceChangeID,
+				f.priceChanges as minerOptionPriceChanges
+			FROM
+				cart a
+				JOIN product b ON a.productID = b.productID
+				JOIN maincategory c ON b.mainCategoryID = c.mainCategoryID
+				LEFT JOIN majoroption d ON a.majorOptionID = d.majorOptionID
+				LEFT JOIN suboption e ON a.subOptionID = e.subOptionID
+				LEFT JOIN mineroption f ON a.minerOptionID = f.minerOptionID
+			WHERE
+				a.userID = #{userID}
+		]]>
+	</select>
+	<!-- 장바구니 1건 삭제 -->
+	<delete id="deleteCartOne" parameterType="java.lang.Integer">
+		<![CDATA[
+			DELETE FROM
+				cart
+			WHERE
+				cartID = #{cartID}
+		]]>
+	</delete>
+</mapper>

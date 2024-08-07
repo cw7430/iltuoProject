@@ -1,0 +1,470 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="kr.co.iltuo.mapper.AdminMapper">
+	<select id="mainCategoryInvalidList" resultType="ShopDTO">
+		<![CDATA[
+			SELECT
+				*
+			FROM
+				maincategory
+			WHERE
+				optionValidID = 'OPV1'
+		]]>
+	</select>
+	<update id="updateMainCategoryValid" parameterType="ShopDTO">
+		<![CDATA[
+			UPDATE
+				maincategory
+			SET
+				optionValidID = #{optionValidID}
+			WHERE
+				mainCategoryID = #{mainCategoryID}
+		]]>
+	</update>
+	<update id="updateMainCategoryName" parameterType="ShopDTO">
+		<![CDATA[
+			UPDATE
+				maincategory
+			SET
+				mainCategoryName = #{mainCategoryName}
+			WHERE
+				mainCategoryID = #{mainCategoryID}
+		]]>
+	</update>
+	<insert id="insertMainCategory" parameterType="ShopDTO">
+		<![CDATA[
+			INSERT INTO
+				maincategory (
+					mainCategoryName,
+					optionGrade,
+					optionValidID
+				)
+			VALUES
+				(
+				#{mainCategoryName},
+				'OT0',
+				'OPV0'
+				)
+		]]>
+	</insert>
+	<select id="mainCategoryDetail" resultType="ShopDTO">
+		<![CDATA[
+			SELECT
+				a.mainCategoryID, a.mainCategoryName, a.optionGrade, a.optionValidID, b.codeName as optionGradeText
+			FROM
+				maincategory a
+				JOIN code b
+					ON a.optionGrade = b.codeID
+			WHERE
+				a.mainCategoryID = #{mainCategoryID}
+		]]>
+	</select>
+	<select id="subCategoryInvalidList" resultType="ShopDTO">
+		<![CDATA[
+			SELECT
+				*
+			FROM
+				subCategory
+			Where
+				mainCategoryID = #{mainCategoryID}
+			AND
+				optionValidID = 'OPV1'
+		]]>
+	</select>
+	<insert id="insertSubCategory" parameterType="ShopDTO">
+		<![CDATA[
+			INSERT INTO
+				subcategory (
+					mainCategoryID,
+					subCategoryName,
+					optionValidID
+				)
+			VALUES
+				(
+				#{mainCategoryID},
+				#{subCategoryName},
+				'OPV0'
+				)
+		]]>
+	</insert>
+	<update id="updateSubCategoryValid" parameterType="ShopDTO">
+		<![CDATA[
+			UPDATE
+				subcategory
+			SET
+				optionValidID = #{optionValidID}
+			WHERE
+				subCategoryID = #{subCategoryID}
+		]]>
+	</update>
+	<update id="updateSubCategoryName" parameterType="ShopDTO">
+		<![CDATA[
+			UPDATE
+				subcategory
+			SET
+				subCategoryName = #{subCategoryName}
+			WHERE
+				subCategoryID = #{subCategoryID}
+		]]>
+	</update>
+	<update id="updateMajorOptionCategory" parameterType="ShopDTO">
+		<![CDATA[
+			UPDATE
+				majoroption
+			SET
+				majorOptionCategory = #{majorOptionCategory}
+			WHERE
+				mainCategoryID = #{mainCategoryID}
+		]]>
+	</update>
+	<update id="updateSubOptionCategory" parameterType="ShopDTO">
+		<![CDATA[
+			UPDATE
+				suboption
+			SET
+				subOptionCategory = #{subOptionCategory}
+			WHERE
+				mainCategoryID = #{mainCategoryID}
+		]]>
+	</update>
+	<update id="updateMinerOptionCategory" parameterType="ShopDTO">
+		<![CDATA[
+			UPDATE
+				mineroption
+			SET
+				minerOptionCategory = #{minerOptionCategory}
+			WHERE
+				mainCategoryID = #{mainCategoryID}
+		]]>
+	</update>
+	<update id="updateOptionGrade" parameterType="ShopDTO">
+		<![CDATA[
+			UPDATE
+				maincategory
+			SET
+				optionGrade = #{optionGrade}
+			WHERE
+				mainCategoryID = #{mainCategoryID}
+		]]>
+	</update>
+	<update id="updateMajorOptionValid" parameterType="ShopDTO">
+		<![CDATA[
+			UPDATE
+				majoroption
+			SET
+				optionValidID = #{optionValidID}
+			WHERE
+				mainCategoryID = #{mainCategoryID}
+		]]>
+	</update>
+	<update id="updateSubOptionValid" parameterType="ShopDTO">
+		<![CDATA[
+			UPDATE
+				suboption
+			SET
+				optionValidID = #{optionValidID}
+			WHERE
+				mainCategoryID = #{mainCategoryID}
+		]]>
+	</update>
+	<update id="updateMinerOptionValid" parameterType="ShopDTO">
+		<![CDATA[
+			UPDATE
+				mineroption
+			SET
+				optionValidID = #{optionValidID}
+			WHERE
+				mainCategoryID = #{mainCategoryID}
+		]]>
+	</update>
+	<select id="optionGradeList" resultType="ShopDTO">
+		<![CDATA[
+			SELECT
+				codeID as optionGrade, codeName as optionGradeText
+			FROM
+				`code`
+			WHERE
+				codeSeparation = 'optionGrade'
+		]]>
+	</select>
+	<select id="isPriceChangeList" resultType="ShopDTO">
+		<![CDATA[
+			SELECT
+				codeID as isPriceChangeID, codeName as isPriceChangeText
+			FROM
+				`code`
+			WHERE
+				codeSeparation = 'isPriceChangeID'
+		]]>
+	</select>
+	<select id="majorOptionList" resultType="ShopDTO">
+		<![CDATA[
+			SELECT
+				a.*,
+				b.codeName as isPriceChangeText
+			FROM
+				majoroption a
+				JOIN code b
+					ON a.isPriceChangeID = b.codeID
+			WHERE
+				a.optionValidID = 'OPV0'
+			AND
+				a.mainCategoryID = #{mainCategoryID}
+			ORDER BY
+				a.sortOrder ASC
+		]]>
+	</select>
+	<select id="subOptionList" resultType="ShopDTO">
+		<![CDATA[
+			SELECT
+				a.*,
+				b.codeName as isPriceChangeText
+			FROM
+				suboption a
+				JOIN code b
+					ON a.isPriceChangeID = b.codeID
+			WHERE
+				a.optionValidID = 'OPV0'
+			AND
+				a.mainCategoryID = #{mainCategoryID}
+			ORDER BY
+				a.sortOrder ASC
+		]]>
+	</select>
+	<select id="minerOptionList" resultType="ShopDTO">
+		<![CDATA[
+			SELECT
+				a.*,
+				b.codeName as isPriceChangeText
+			FROM
+				mineroption a
+				JOIN code b
+					ON a.isPriceChangeID = b.codeID
+			WHERE
+				a.optionValidID = 'OPV0'
+			AND
+				a.mainCategoryID = #{mainCategoryID}
+			ORDER BY
+				a.sortOrder ASC
+		]]>
+	</select>
+	<update id="updateMajorOptionSort" parameterType="ShopDTO">
+		<![CDATA[
+			UPDATE
+				majoroption
+			SET
+				sortOrder = #{sortOrder}
+			WHERE
+				majorOptionID = #{majorOptionID}
+		]]>
+	</update>
+	<update id="updateSubOptionSort" parameterType="ShopDTO">
+		<![CDATA[
+			UPDATE
+				suboption
+			SET
+				sortOrder = #{sortOrder}
+			WHERE
+				subOptionID = #{subOptionID}
+		]]>
+	</update>
+	<update id="updateMinerOptionSort" parameterType="ShopDTO">
+		<![CDATA[
+			UPDATE
+				mineroption
+			SET
+				sortOrder = #{sortOrder}
+			WHERE
+				minerOptionID = #{minerOptionID}
+		]]>
+	</update>
+	<update id="updateMajorOptionValidOne" parameterType="ShopDTO">
+		<![CDATA[
+			UPDATE
+				majoroption
+			SET
+				optionValidID = #{optionValidID}
+			WHERE
+				majorOptionID = #{majorOptionID}
+		]]>
+	</update>
+	<update id="updateSubOptionValidOne" parameterType="ShopDTO">
+		<![CDATA[
+			UPDATE
+				suboption
+			SET
+				optionValidID = #{optionValidID}
+			WHERE
+				subOptionID = #{subOptionID}
+		]]>
+	</update>
+	<update id="updateMinerOptionValidOne" parameterType="ShopDTO">
+		<![CDATA[
+			UPDATE
+				mineroption
+			SET
+				optionValidID = #{optionValidID}
+			WHERE
+				minerOptionID = #{minerOptionID}
+		]]>
+	</update>
+	<insert id="insertMajorOption" parameterType="ShopDTO">
+		<![CDATA[
+			INSERT INTO
+				majoroption (
+					majorOptionCategory,
+					mainCategoryID,
+					majorOptionName,
+					isPriceChangeID,
+					priceChanges,
+					optionValidID,
+					sortOrder
+				)
+			VALUES
+				(
+				#{majorOptionCategory},
+				#{mainCategoryID},
+				#{majorOptionName},
+				#{isPriceChangeID},
+				#{priceChanges},
+				'OPV0',
+				#{sortOrder
+				)
+		]]>
+	</insert>
+	<insert id="insertSubOption" parameterType="ShopDTO">
+		<![CDATA[
+			INSERT INTO
+				suboption (
+					subOptionCategory,
+					mainCategoryID,
+					subOptionName,
+					isPriceChangeID,
+					priceChanges,
+					optionValidID,
+					sortOrder
+				)
+			VALUES
+				(
+				#{subOptionCategory},
+				#{mainCategoryID},
+				#{subOptionName},
+				#{isPriceChangeID},
+				#{priceChanges},
+				'OPV0',
+				#{sortOrder}
+				)
+		]]>
+	</insert>
+	<insert id="insertMinerOption" parameterType="ShopDTO">
+		<![CDATA[
+			INSERT INTO
+				mineroption (
+					minerOptionCategory,
+					mainCategoryID,
+					minerOptionName,
+					isPriceChangeID,
+					priceChanges,
+					optionValidID,
+					sortOrder
+				)
+			VALUES
+				(
+				#{minerOptionCategory},
+				#{mainCategoryID},
+				#{minerOptionName},
+				#{isPriceChangeID},
+				#{priceChanges},
+				'OPV0',
+				#{sortOrder}
+				)
+		]]>
+	</insert>
+	<select id="adminProductList" resultType="ShopDTO" parameterType="ShopCriteria">
+		<![CDATA[
+			SELECT
+				p.productID,
+				p.mainCategoryID,
+				p.subCategoryID,
+				m.mainCategoryName,
+				s.subCategoryName,
+				p.productName,
+				p.productComments,
+				p.price,
+				p.registrationDate,
+				p.productImageName
+			FROM
+				product p
+				JOIN maincategory m
+					ON p.mainCategoryID = m.mainCategoryID
+				LEFT JOIN subcategory s
+					ON p.subCategoryID = s.subCategoryID
+			WHERE
+				p.disContinuedStatusID = 'DC0'
+		]]>
+		<if test="mainCategoryID != 0">
+			<![CDATA[
+				AND
+					p.mainCategoryID = #{mainCategoryID}
+			]]>
+		</if>
+		<if test="subCategoryID != 0">
+			<![CDATA[
+				AND
+					p.subCategoryID = #{subCategoryID}
+			]]>
+		</if>
+		<choose>
+			<when test="sortOrder == 1">
+				<![CDATA[
+					p.price ASC,
+				]]>
+			</when>
+			<when test="sortOrder == 2">
+				<![CDATA[
+					p.price DESC,
+				]]>
+			</when>
+		</choose>
+		<![CDATA[
+				p.productID DESC
+			LIMIT
+				#{pageStart}, #{perPageNum}
+		]]>
+	</select>
+	<select id="adminGetTotalCountProduct" resultType="java.lang.Integer" parameterType="ShopCriteria">
+		<![CDATA[
+			SELECT COUNT(*)
+			FROM
+				product p
+				JOIN maincategory m
+					ON p.mainCategoryID = m.mainCategoryID
+				LEFT JOIN subcategory s
+					ON p.subCategoryID = s.subCategoryID
+				WHERE
+					disContinuedStatusID = 'DC0'
+		]]>
+		<if test="mainCategoryID != 0">
+			<![CDATA[
+				AND
+					p.mainCategoryID = #{mainCategoryID}
+			]]>
+		</if>
+		<if test="subCategoryID != 0">
+			<![CDATA[
+				AND
+					p.subCategoryID = #{subCategoryID}
+			]]>
+		</if>
+	</select>
+	<select id="adminMainCategoryList" resultType="ShopCriteria">
+		<![CDATA[
+			SELECT
+				*
+			FROM
+				mainCategory
+			WHERE
+				optionValidID = 'OPV0'
+		]]>
+	</select>
+</mapper>

@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org"
+	xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+<title>장바구니</title>
+<th:block th:insert="~{fragments::head}" />
+</head>
+<body>
+	<!-- header section start -->
+	<th:block th:insert="~{fragments::sub_header}" />
+	<!-- header section end -->
+
+	<!-- contents section start -->
+	<div class="container">
+		<div class="row">
+			<div class="col mt-5">
+				<h2 class="mb-4">장바구니</h2>
+			</div>
+		</div>
+		<form th:action="@{/order/insertPriceMultiple}" method="post" onsubmit="return validate();">
+			<div class="d-none">
+				<input type="hidden" th:value="${#authentication.name}" id="userID" name="userID" readonly="readonly">
+			</div>
+			<div class="row">
+				<div class="col-lg-8">
+					<!-- 장바구니 항목 리스트 -->
+					<div class="card mb-4">
+						<div class="card-header">
+							<h4>내 장바구니</h4>
+						</div>
+						<div id="cart-items">
+							<div class="card-body" th:each="cartList : ${cartList}"
+								th:id="'cart-item-' + ${cartList.cartID}">
+								<div class="row">
+									<input type="hidden" th:value="${cartList.cartID}" name="cartID" readonly="readonly">
+									<input type="hidden" th:value="${cartList.userID}" name="cartList[__${iterStat.index}__].userIDForOrder" readonly="readonly">
+									<input type="hidden" th:value="${cartList.price}" name="cartList[__${iterStat.index}__].originalPrice" readonly="readonly">
+									<input type="hidden" th:value="${cartList.orderPrice}" name="cartList[__${iterStat.index}__].orderPrice" readonly="readonly">
+									<input type="hidden" th:value="${cartList.totalPrice}" name="totalPrice" readonly="readonly">
+									<input type="hidden" th:value="${cartList.productID}" name="cartList[__${iterStat.index}__].productID" readonly="readonly">
+									<input type="hidden" th:value="${cartList.count}" name="cartList[__${iterStat.index}__].count" readonly="readonly">
+									<input type="hidden" th:value="${cartList.majorOptionID}" name="cartList[__${iterStat.index}__].majorOptionID" readonly="readonly">
+									<input type="hidden" th:value="${cartList.finalMajorOptionAdjustedPrice}" name="cartList[__${iterStat.index}__].majorOptionAdjustedPrice" readonly="readonly">
+									<input type="hidden" th:value="${cartList.subOptionID}" name="cartList[__${iterStat.index}__].subOptionID" readonly="readonly">
+									<input type="hidden" th:value="${cartList.finalSubOptionAdjustedPrice}" name="cartList[__${iterStat.index}__].subOptionAdjustedPrice" readonly="readonly">
+									<input type="hidden" th:value="${cartList.minerOptionID}" name="cartList[__${iterStat.index}__].minerOptionID" readonly="readonly">
+									<input type="hidden" th:value="${cartList.finalMinerOptionAdjustedPrice}" name="cartList[__${iterStat.index}__].minerOptionAdjustedPrice" readonly="readonly">
+									<div class="col-md-3">
+										<img
+											th:src="@{/images/product/{imageName}(imageName=${cartList.productImageName})}"
+											class="img-fluid" alt="상품 이미지">
+									</div>
+									<div class="col-md-6">
+										<h5 th:text="${cartList.productName}"></h5>
+										<th:block th:if="${cartList.majorOptionID != 0}">
+											<p>
+												<span th:text="${cartList.majorOptionCategory}"></span>
+												&nbsp; : &nbsp;<span th:text="${cartList.majorOptionName}"></span>
+											</p>
+										</th:block>
+										<th:block th:if="${cartList.subOptionID != 0}">
+											<p>
+												<span th:text="${cartList.subOptionCategory}"></span> &nbsp;
+												: &nbsp;<span th:text="${cartList.subOptionName}"></span>
+											</p>
+										</th:block>
+										<th:block th:if="${cartList.minerOptionID != 0}">
+											<p>
+												<span th:text="${cartList.minerOptionCategory}"></span>
+												&nbsp; : &nbsp;<span th:text="${cartList.minerOptionName}"></span>
+											</p>
+										</th:block>
+										<p>
+											개수 &nbsp; : &nbsp;<span th:text="${cartList.count} + '개'"></span>
+										</p>
+										<p class="text-muted">
+											가격 &nbsp; : &nbsp;<span th:text="${cartList.fmtTotalPrice}"></span>
+										</p>
+									</div>
+									<div class="col-md-3 d-flex align-items-center">
+										<button type="button" class="btn btn-danger ml-2"
+											th:onclick="'deleteCartOne(' + ${cartList.cartID} + ')'">삭제</button>
+									</div>
+								</div>
+								<hr>
+								<!-- 추가 장바구니 항목들은 여기에 반복 -->
+							</div>
+							<div id="no-items-message" class="text-center" style="display: none;">
+                                <p>장바구니에 담긴 상품이 없습니다.</p>
+                            </div>
+						</div>
+					</div>
+				</div>
+				<div class="col-lg-4">
+					<!-- 주문 요약 -->
+					<div class="card mb-4">
+						<div class="card-header">
+							<h4>주문 요약</h4>
+							<input type="hidden" id="totalProductPrice" readonly="readonly">
+							<input type="hidden" id="deliveryPrice" readonly="readonly">
+							<input type="hidden" id="deliveryPriceStatusID" name="deliveryPriceStatusID" readonly="readonly">
+							<input type="hidden" id="finalTotalPrice" name="finalTotalPrice" readonly="readonly">
+						</div>
+						<div class="card-body">
+							<p>
+								총 상품 가격: <span id="fmtTotalProductPrice" class="float-right"></span>
+							</p>
+							<p>
+								배송비: <span id="fmtDeliveryPrice" class="float-right"></span>
+							</p>
+							<span id="deliveryInfo" class="text-muted"></span>
+							<hr>
+							<h5>
+								총 주문금액: <span id="fmtFinalTotalPrice" class="float-right"></span>
+							</h5>
+							<button type="submit" class="btn btn-primary btn-block mt-4">주문하기</button>
+						</div>
+					</div>
+				</div>
+			</div>
+		</form>
+	</div>
+	<!-- contents section end -->
+
+	<!-- footer section start -->
+	<th:block th:insert="~{fragments::footer}" />
+	<!-- footer section end -->
+
+	<!-- Javascript files-->
+	<th:block th:insert="~{fragments::script}" />
+	<script th:inline="javascript">
+		
+		document.addEventListener('DOMContentLoaded', () => {
+			calculateAndUpdateTotalPrice();
+			refreshCart();
+		});
+	
+		function calculateAndUpdateTotalPrice() {
+			const totalProductPriceElem = document.getElementById('totalProductPrice');
+			const fmtTotalProductPriceElem = document.getElementById('fmtTotalProductPrice');
+			const deliveryPriceElem = document.getElementById('deliveryPrice');
+			const fmtDeliveryPriceElem = document.getElementById('fmtDeliveryPrice');
+			const finalTotalPriceElem = document.getElementById('finalTotalPrice');
+			const fmtFinalTotalPriceElem = document.getElementById('fmtFinalTotalPrice');
+			const deliveryInfoElem = document.getElementById('deliveryInfo');
+			const deliveryPriceStatusIDElem = document.getElementById('deliveryPriceStatusID');
+			
+			let totalProductPrice = 0;
+			document.querySelectorAll('input[name="totalPrice"]').forEach(input => {
+				totalProductPrice += parseInt(input.value) || 0;
+			});
+			
+			totalProductPriceElem.value = totalProductPrice;
+			
+			const fmtTotalPrice = totalProductPrice.toLocaleString() + '원';
+			fmtTotalProductPriceElem.innerText = fmtTotalPrice;
+			
+			let deliveryPrice = 0;
+			let deliveryInfo = '';
+			let deliveryPriceStatusID = '';
+			if(totalProductPrice > 0 && totalProductPrice < 30000) {
+				deliveryPrice = 3000;
+				deliveryPriceStatusID = 'DP0';
+			} else if(totalProductPrice >= 30000) {
+				deliveryInfo = '30,000원 이상 구매 시 배송비가 무료입니다.';
+				deliveryPriceStatusID = 'DP1';
+			}
+			
+			deliveryPriceElem.value = deliveryPrice;
+			deliveryInfoElem.innerText = deliveryInfo;
+			deliveryPriceStatusIDElem.value = deliveryPriceStatusID;
+			
+			const fmtDeliveryPrice = deliveryPrice.toLocaleString() + '원';
+			fmtDeliveryPriceElem.innerText = fmtDeliveryPrice;
+			
+			let finalTotalPrice = totalProductPrice + deliveryPrice;
+			
+			finalTotalPriceElem.value = finalTotalPrice;
+			
+			const fmtFinalTotalPrice = finalTotalPrice.toLocaleString() + '원';
+			fmtFinalTotalPriceElem.innerText = fmtFinalTotalPrice;
+		}
+
+		function deleteCartOne(cartID) {
+			fetch(`/cart/deleteCartOne?cartID=${cartID}`, {
+				method: 'GET',
+			})
+			.then(response => response.json())
+			.then(data => {
+				console.log(data);
+				if (data === 1) {
+					refreshCart();
+				} else {
+					alert('삭제 중 오류가 발생하였습니다.');
+				}
+			})
+			.catch(error => {
+				console.error('Error:', error);
+				alert('삭제 중 오류가 발생하였습니다.');
+			});
+		}
+		
+		function refreshCart() {
+			const userID = document.getElementById('userID').value.trim();;
+			fetch('/cart/refreshCart?userID=' + userID, {
+				method: 'GET',
+			})
+			.then(response => response.json())
+			.then(data => {
+				const cartItemsContainer = document.getElementById('cart-items');
+				const noItemsMessage = document.getElementById('no-items-message');
+				
+				if (data.length === 0) {
+					cartItemsContainer.innerHTML = `
+						<div id="no-items-message" class="text-center">
+							<p>장바구니에 담긴 상품이 없습니다.</p>
+						</div>
+					`;
+					noItemsMessage.style.display = 'block';
+				} else {
+					noItemsMessage.style.display = 'none';
+					cartItemsContainer.innerHTML = '';
+					
+					data.forEach((item,index) => {
+						const cartItemHTML = `
+							<div class="card-body" id="cart-item-${item.cartID}">
+								<div class="row">
+									<input type="hidden" value="${item.cartID}" name="cartID" readonly="readonly">
+									<input type="hidden" value="${item.userID}" name="cartList[${index}].userIDForOrder" readonly="readonly">
+									<input type="hidden" value="${item.price}" name="cartList[${index}].originalPrice" readonly="readonly">
+									<input type="hidden" value="${item.orderPrice}" name="cartList[${index}].orderPrice" readonly="readonly">
+									<input type="hidden" value="${item.totalPrice}" name="totalPrice" readonly="readonly">
+									<input type="hidden" value="${item.productID}" name="cartList[${index}].productID" readonly="readonly">
+									<input type="hidden" value="${item.count}" name="cartList[${index}].count" readonly="readonly">
+									<input type="hidden" value="${item.majorOptionID}" name="cartList[${index}].majorOptionID" readonly="readonly">
+									<input type="hidden" value="${item.finalMajorOptionAdjustedPrice}" name="cartList[${index}].majorOptionAdjustedPrice" readonly="readonly">
+									<input type="hidden" value="${item.subOptionID}" name="cartList[${index}].subOptionID" readonly="readonly">
+									<input type="hidden" value="${item.finalSubOptionAdjustedPrice}" name="cartList[${index}].subOptionAdjustedPrice" readonly="readonly">
+									<input type="hidden" value="${item.minerOptionID}" name="cartList[${index}].minerOptionID" readonly="readonly">
+									<input type="hidden" value="${item.finalMinerOptionAdjustedPrice}" name="cartList[${index}].minerOptionAdjustedPrice" readonly="readonly">
+									<div class="col-md-3">
+										<img src="/images/product/${item.productImageName}" class="img-fluid" alt="상품 이미지">
+									</div>
+									<div class="col-md-6">
+										<h5>${item.productName}</h5>
+										${item.majorOptionID !== 0 ? `<p><span>${item.majorOptionCategory}</span> &nbsp; : &nbsp;<span>${item.majorOptionName}</span></p>` : ''}
+										${item.subOptionID !== 0 ? `<p><span>${item.subOptionCategory}</span> &nbsp; : &nbsp;<span>${item.subOptionName}</span></p>` : ''}
+										${item.minerOptionID !== 0 ? `<p><span>${item.minerOptionCategory}</span> &nbsp; : &nbsp;<span>${item.minerOptionName}</span></p>` : ''}
+										<p>개수 &nbsp; : &nbsp;${item.count}개</p>
+										<p class="text-muted">가격 &nbsp;  : &nbsp;${item.fmtTotalPrice}</p>
+									</div>
+									<div class="col-md-3 d-flex align-items-center">
+										<button type="button" class="btn btn-danger ml-2" onclick="deleteCartOne(${item.cartID})">삭제</button>
+									</div>
+								</div>
+								<hr>
+							</div>
+							<div id="no-items-message" class="text-center" style="display: none;">
+                            	<p>장바구니에 담긴 상품이 없습니다.</p>
+                        	</div>
+						`;
+						
+						cartItemsContainer.insertAdjacentHTML('beforeend', cartItemHTML);
+					});
+				}
+				calculateAndUpdateTotalPrice();
+			})
+			.catch(error => {
+				console.error('Error:', error);
+			});
+		}
+		
+		function validate() {
+			let isValid = true;
+			let errMsg = "";
+			
+			const finalTotalPrice = document.getElementById('finalTotalPrice').value.trim();
+			
+			if(finalTotalPrice === "0" || finalTotalPrice === "") {
+				errMsg = "장바구니에 담긴 상품이 없습니다.";
+				isValid = false;
+			}
+			
+			if (!isValid) {
+				alert(errMsg);
+			}
+			
+			return isValid;
+		}
+		
+	</script>
+</body>
+</html>

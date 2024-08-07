@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org"
+	xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+<title>주문내역</title>
+<th:block th:insert="~{fragments::head}" />
+<style type="text/css">
+.table-hover thead tr {
+	background-color: black;
+	color: white;
+}
+body {
+	display: flex;
+	flex-direction: column;
+	min-height: 100vh;
+}
+.container {
+	flex: 1;
+}
+footer {
+	margin-top: auto;
+}
+</style>
+</head>
+<body class="d-flex flex-column min-vh-100">
+	<!-- header section start -->
+	<th:block th:insert="~{fragments::sub_header}" />
+	<!-- header section end -->
+	<!-- contents section start -->
+	<div class="container flex-grow-1">
+		<div class="row">
+			<div class="col mt-5">
+				<h2 class="mb-4">주문내역</h2>
+			</div>
+		</div>
+		<div class="row">
+			<div class="table-responsive">
+				<table class="table table-hover">
+					<thead class="table-dark">
+						<tr>
+							<th>상태</th>
+							<th>주문 번호</th>
+							<th>총 주문금액</th>
+							<th>결제 방식</th>
+							<th>주문일</th>
+							<th></th>
+						</tr>
+					</thead>
+					<tbody th:each="orderList : ${orderList}">
+						<tr th:if="${#lists.size(orderList) > 0}" style="cursor: pointer;">
+							<td onclick="navigateToOrderDetail(this);">
+								<span th:if="${orderList.paymentStatusID.equals('PS0')}" th:text="${orderList.status}" style="color: red;"></span>
+								<span th:if="${orderList.paymentStatusID.equals('PS1')}" th:text="${orderList.status}" style="color: blue;"></span>
+								<span th:if="${!orderList.paymentStatusID.equals('PS0') AND !orderList.paymentStatusID.equals('PS1')}" th:text="${orderList.status}"></span>
+								<input type="hidden" name="URL" th:value="'/orderDetail?priceID=' + ${orderList.priceID} + '&userID=' + ${#authentication.name}" readonly="readonly">
+							</td>
+							<td onclick="navigateToOrderDetail(this);">
+								<span th:text="${orderList.priceID}"></span>
+								<input type="hidden" name="URL" th:value="'/orderDetail?priceID=' + ${orderList.priceID} + '&userID=' + ${#authentication.name}" readonly="readonly">
+							</td>
+							<td onclick="navigateToOrderDetail(this);">
+								<span th:text="${orderList.fmtTotalPrice}"></span>
+								<input type="hidden" name="URL" th:value="'/orderDetail?priceID=' + ${orderList.priceID} + '&userID=' + ${#authentication.name}" readonly="readonly">
+							</td>
+							<td onclick="navigateToOrderDetail(this);">
+								<span th:text="${orderList.paymentMethod}"></span>
+								<input type="hidden" name="URL" th:value="'/orderDetail?priceID=' + ${orderList.priceID} + '&userID=' + ${#authentication.name}" readonly="readonly">
+							</td>
+							<td onclick="navigateToOrderDetail(this);">
+								<span th:text="${orderList.paymentDate}"></span>
+								<input type="hidden" name="URL" th:value="'/orderDetail?priceID=' + ${orderList.priceID} + '&userID=' + ${#authentication.name}" readonly="readonly">
+							</td>
+							<th:block th:if="${orderList.deliveryStatusID.equals('DS0')}">
+								<td>
+									<form th:action="@{/orderList/cancelOrder}" method="post" onsubmit="return confirmCancle();">
+										<input type="hidden" th:value="${#authentication.name}" name="userID" readonly="readonly">
+										<input type="hidden" name="priceID" th:value="${orderList.priceID}" readonly="readonly">
+										<input type="hidden" name="deliveryStatusID" value="DS3" readonly="readonly">
+										<input type="hidden" name="orderStatusID" value="OS2" readonly="readonly">
+										<input type="hidden" name="viewOrder" value="a" readonly="readonly">
+										<th:block th:if="${orderList.paymentStatusID.equals('PS0')}">
+											<input type="hidden" name="paymentStatusID" value="PS3" readonly="readonly">
+										</th:block>
+										<th:block th:if="${orderList.paymentStatusID.equals('PS1')}">
+											<input type="hidden" name="paymentStatusID" value="PS2" readonly="readonly">
+										</th:block>
+										<button type="submit" class="btn btn-danger">주문취소</button>
+									</form>
+								</td>
+							</th:block>
+							<th:block th:if="!${orderList.deliveryStatusID.equals('DS0')}">
+								<td></td>
+							</th:block>
+						</tr>
+					</tbody>
+					<tr th:if="${#lists.size(orderList) == 0}">
+						<td colspan="6">주문하신 상품이 없습니다.</td>
+					</tr>
+				</table>
+			</div>
+		</div>
+	</div>
+	<!-- contents section end -->
+
+	<!-- footer section start -->
+	<footer class="mt-auto">
+		<th:block th:insert="~{fragments::footer}" />
+	</footer>
+	<!-- footer section end -->
+
+	<!-- Javascript files-->
+	<th:block th:insert="~{fragments::script}" />
+	<script th:inline="javascript">
+		document.addEventListener('DOMContentLoaded', () => {
+			let m = /*[[${msg}]]*/ '기본값';
+		    if (m !== null && m !== '기본값') {
+		        alert(m);
+		    }
+		});
+		
+		function navigateToOrderDetail(row) {
+			const priceID = row.querySelector('input[name="URL"]').value;
+			const url = priceID;
+			window.location.href = url;
+		}
+		
+		function confirmCancle() {
+			let isValid = true;
+			let confirmMsg = "결제를 취소하시겠습니까?";
+			
+			if (!confirm(confirmMsg)) {
+				isValid = false;
+			}
+			
+			return isValid;
+		}
+	</script>
+</body>
+</html>

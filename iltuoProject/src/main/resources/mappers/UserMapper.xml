@@ -1,0 +1,169 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="kr.co.iltuo.mapper.UserMapper">
+	<!-- 사용자 정보 전부 가져오기 -->
+	<select id="findAllUsers" resultType="UserDTO">
+		<![CDATA[
+			SELECT
+				*
+			FROM
+				user
+		]]>
+	</select>
+	<!-- 로그인정보 가져오기 -->
+	<select id="findByUserID" resultType="UserDTO">
+		<![CDATA[
+			SELECT 
+    			u.*,
+				a.* 
+			FROM 
+				user u
+				LEFT JOIN address a 
+					ON u.userID = a.userID
+			WHERE 
+				u.userID = #{userID}
+				AND a.isMainID = "MN1"
+		 ]]>
+	</select>
+	<!-- 주소정보 가져오기 -->
+	<select id="findAddress" resultType="UserDTO">
+		<![CDATA[
+			SELECT
+				*
+			FROM
+				address
+			WHERE
+				userID = #{userID}
+				AND isMainID = "MN0"
+				AND optionValidID = "OPV0"
+		]]>
+	</select>
+	<select id="findMainAddress" resultType="UserDTO">
+		<![CDATA[
+			SELECT
+				*
+			FROM
+				address
+			WHERE
+				userID = #{userID}
+				AND isMainID = "MN1"
+		]]>
+	</select>
+	<!-- 기존 비밀번호 암호화 -->
+	<update id="updateUserPassword">
+		<![CDATA[
+			UPDATE
+				user
+			SET
+				password = #{password}
+			WHERE userID = #{userID}
+		]]>
+	</update>
+	<!-- 아이디 중복검사 -->
+	<select id="userIDDuplicateCheck" resultType="java.lang.Integer">
+		<![CDATA[
+			SELECT
+				COUNT(*)
+			FROM
+				user
+			WHERE
+				userID = #{userID}
+		]]>
+	</select>
+	<!-- 회원가입 -->
+	<insert id="join" parameterType="UserDTO">
+		<![CDATA[
+			INSERT INTO
+				user (
+					userID,
+					password,
+					userName,
+					phoneNum,
+					email,
+					joinDate,
+					adminRightsID
+				)
+			VALUES
+				(
+					#{userID},
+					#{password},
+					#{userName},
+					#{phoneNum},
+					#{email},
+					now(),
+					"AR0"
+				)
+		]]>
+	</insert>
+	<!-- 주소등록 -->
+	<insert id="insertAddress" parameterType="UserDTO">
+		<![CDATA[
+			INSERT INTO
+				address (
+					userID,
+					postalCode,
+					address,
+					detailAddress,
+					extraAddress,
+					isMainID
+				)
+			VALUES
+				(
+					#{userID},
+					#{postalCode},
+					#{address},
+					#{detailAddress},
+					#{extraAddress},
+					#{isMainID}
+				)
+		]]>
+	</insert>
+	<!-- 회원정보 수정 -->
+	<update id="updateUserInformation" parameterType="UserDTO">
+		<![CDATA[
+			UPDATE
+				user
+			SET
+				password = #{password},
+				userName = #{userName},
+				phoneNum = #{phoneNum},
+				email = #{email}
+			WHERE
+				userID = #{userID}
+		]]>
+	</update>
+	<!-- 기본주소 지정 -->
+	<update id="setAddressNotMain" parameterType="UserDTO">
+		<![CDATA[
+			UPDATE
+				address
+			SET
+				isMainID = "MN0"
+			WHERE
+				userID = #{userID}
+			And
+				isMainID = "MN1"
+		]]>
+	</update>
+	<update id="setAddressMain" parameterType="UserDTO">
+		<![CDATA[
+			UPDATE
+				address
+			SET
+				isMainID = "MN1"
+			WHERE
+				addressID = #{addressID}
+		]]>
+	</update>
+	<!-- 주소삭제 -->
+	<delete id="deleteAddress" parameterType="UserDTO">
+		<![CDATA[
+			UPDATE
+				address
+			SET
+				optionValidID = 'OPV1'
+			WHERE
+				addressID = #{addressID}
+		]]>
+	</delete>
+</mapper>

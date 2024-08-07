@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org"
+				xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+
+<head>
+<th:block th:insert="~{fragments::head}" />
+<title>로그인 페이지</title>
+</head>
+
+<body class="inner_page login">
+	<div class="full_container">
+		<div class="container">
+			<div class="center verticle_center full_height">
+				<div class="login_section">
+					<div class="logo_login">
+						<div class="center">
+							<a th:href="@{/}"><img width="210" th:src="@{\images\logo.png}" alt="#" /></a>
+						</div>
+					</div>
+					<div class="login_form">
+						<form th:action="@{/login}" method="post">
+							<fieldset>
+								<div class="field">
+									<label class="label_field">아이디</label> <input type="text"
+										name="userID" placeholder="ID" />
+								</div>
+								<div class="field">
+									<label class="label_field">비밀번호</label> <input type="password"
+										name="password" placeholder="Password" />
+								</div>
+								<div class="field">
+									<label class="label_field hidden">hidden label</label> <label
+										class="form-check-label"><input type="checkbox"
+										class="form-check-input"> 아이디 기억하기</label> <a class="join"
+										th:href="@{/join}">회원가입</a>
+								</div>
+								<div class="field margin_0">
+									<label class="label_field hidden">hidden label</label>
+									<button type="submit"
+										class="login_bt btn btn-success text-white">로그인</button>
+								</div>
+								<div th:if="${errorMessage}" style="color: red;">
+									<p th:text="${errorMessage}"></p>
+								</div>
+							</fieldset>
+						</form>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<!-- Javascript files-->
+	<th:block th:insert="~{fragments::script}" />
+	<!-- sidebar -->
+</body>
+
+</html>

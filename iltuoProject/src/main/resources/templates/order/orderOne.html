@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org"
+	xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+<title>주문하기</title>
+<th:block th:insert="~{fragments::head}" />
+</head>
+<body>
+	<!-- header section start -->
+	<th:block th:insert="~{fragments::sub_header}" />
+	<!-- header section end -->
+
+	<!-- contents section start -->
+	<div class="container">
+		<div class="row">
+			<div class="col mt-5">
+				<h2 class="mb-4">주문하기</h2>
+			</div>
+		</div>
+		<form th:action="@{/order/insertPriceOne}" method="post">
+			<div class="d-none">
+				<input type="hidden" th:value="${#authentication.name}" id="userID" name="userID" readonly="readonly">
+			</div>
+			<div class="row">
+				<div class="col-lg-8">
+					<!-- 장바구니 항목 리스트 -->
+					<div class="card mb-4">
+						<div class="card-header">
+							<h4>상품</h4>
+						</div>
+						<div id="cart-items">
+							<div class="card-body">
+								<div class="row">
+									<input type="hidden" th:value="${order.orderID}" name="orderID" readonly="readonly">
+									<input type="hidden" th:value="${order.price}" name="price" readonly="readonly">
+									<input type="hidden" th:value="${order.totalPrice}" name="totalPrice" readonly="readonly">
+									<input type="hidden" th:value="${order.productID}" name="productID" readonly="readonly">
+									<input type="hidden" th:value="${order.finalMajorOptionAdjustedPrice}" name="majorOptionAdjustedPrice" readonly="readonly">
+									<input type="hidden" th:value="${order.finalSubOptionAdjustedPrice}" name="subOptionAdjustedPrice" readonly="readonly">
+									<input type="hidden" th:value="${order.finalMinerOptionAdjustedPrice}" name="minerOptionAdjustedPrice" readonly="readonly">
+									<div class="col-md-3">
+										<img th:src="@{/images/product/{imageName}(imageName=${order.productImageName})}" class="img-fluid" alt="상품 이미지">
+									</div>
+									<div class="col-md-6">
+										<h5 th:text="${order.productName}"></h5>
+										<th:block th:if="${order.majorOptionID != 0}">
+											<p>
+												<span th:text="${order.majorOptionCategory}"></span>
+												&nbsp; : &nbsp;<span th:text="${order.majorOptionName}"></span>
+											</p>
+										</th:block>
+										<th:block th:if="${order.subOptionID != 0}">
+											<p>
+												<span th:text="${order.subOptionCategory}"></span> &nbsp;
+												: &nbsp;<span th:text="${order.subOptionName}"></span>
+											</p>
+										</th:block>
+										<th:block th:if="${order.minerOptionID != 0}">
+											<p>
+												<span th:text="${order.minerOptionCategory}"></span>
+												&nbsp; : &nbsp;<span th:text="${order.minerOptionName}"></span>
+											</p>
+										</th:block>
+										<p>
+											개수 &nbsp; : &nbsp;<span th:text="${order.count} + '개'"></span>
+										</p>
+										<p class="text-muted">
+											가격 &nbsp; : &nbsp;<span th:text="${order.fmtTotalPrice}"></span>
+										</p>
+									</div>
+								</div>
+								<hr>
+							</div>
+						</div>
+					</div>
+				</div>
+				<div class="col-lg-4">
+					<!-- 주문 요약 -->
+					<div class="card mb-4">
+						<div class="card-header">
+							<h4>주문 요약</h4>
+							<input type="hidden" id="totalProductPrice" readonly="readonly">
+							<input type="hidden" id="deliveryPrice" readonly="readonly">
+							<input type="hidden" id="deliveryPriceStatusID" name="deliveryPriceStatusID" readonly="readonly">
+							<input type="hidden" id="finalTotalPrice" name="finalTotalPrice"
+								readonly="readonly">
+						</div>
+						<div class="card-body">
+							<p>
+								총 상품 가격: <span id="fmtTotalProductPrice" class="float-right"></span>
+							</p>
+							<p>
+								배송비: <span id="fmtDeliveryPrice" class="float-right"></span>
+							</p>
+							<span id="deliveryInfo" class="text-muted"></span>
+							<hr>
+							<h5>
+								총 주문금액: <span id="fmtFinalTotalPrice" class="float-right"></span>
+							</h5>
+							<div class="row mt-4">
+								<div class="col-6">
+									<button type="submit" class="btn btn-primary btn-block">주문하기</button>
+								</div>
+								<div class="col-6">
+									<a type="button" class="btn btn-danger btn-block" th:href="@{/}" style="color: #FFFFFF">취소하기</a>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</form>
+	</div>
+	<!-- contents section end -->
+
+	<!-- footer section start -->
+	<th:block th:insert="~{fragments::footer}" />
+	<!-- footer section end -->
+
+	<!-- Javascript files-->
+	<th:block th:insert="~{fragments::script}" />
+	<script th:inline="javascript">
+		
+		document.addEventListener('DOMContentLoaded', () => {
+			calculateAndUpdateTotalPrice();
+		});
+	
+		function calculateAndUpdateTotalPrice() {
+			const totalProductPriceElem = document.getElementById('totalProductPrice');
+			const fmtTotalProductPriceElem = document.getElementById('fmtTotalProductPrice');
+			const deliveryPriceElem = document.getElementById('deliveryPrice');
+			const fmtDeliveryPriceElem = document.getElementById('fmtDeliveryPrice');
+			const finalTotalPriceElem = document.getElementById('finalTotalPrice');
+			const fmtFinalTotalPriceElem = document.getElementById('fmtFinalTotalPrice');
+			const deliveryInfoElem = document.getElementById('deliveryInfo');
+			const deliveryPriceStatusIDElem = document.getElementById('deliveryPriceStatusID');
+			
+			let totalProductPrice = 0;
+			document.querySelectorAll('input[name="totalPrice"]').forEach(input => {
+				totalProductPrice += parseInt(input.value) || 0;
+			});
+			
+			totalProductPriceElem.value = totalProductPrice;
+			
+			const fmtTotalPrice = totalProductPrice.toLocaleString() + '원';
+			fmtTotalProductPriceElem.innerText = fmtTotalPrice;
+			
+			let deliveryPrice = 0;
+			let deliveryInfo = '';
+			let deliveryPriceStatusID = '';
+			if(totalProductPrice > 0 && totalProductPrice < 30000) {
+				deliveryPrice = 3000;
+				deliveryPriceStatusID = 'DP0';
+			} else if(totalProductPrice >= 30000) {
+				deliveryInfo = '30,000원 이상 구매 시 배송비가 무료입니다.';
+				deliveryPriceStatusID = 'DP1';
+			}
+			
+			deliveryPriceElem.value = deliveryPrice;
+			deliveryInfoElem.innerText = deliveryInfo;
+			deliveryPriceStatusIDElem.value = deliveryPriceStatusID;
+			
+			const fmtDeliveryPrice = deliveryPrice.toLocaleString() + '원';
+			fmtDeliveryPriceElem.innerText = fmtDeliveryPrice;
+			
+			let finalTotalPrice = totalProductPrice + deliveryPrice;
+			
+			finalTotalPriceElem.value = finalTotalPrice;
+			
+			const fmtFinalTotalPrice = finalTotalPrice.toLocaleString() + '원';
+			fmtFinalTotalPriceElem.innerText = fmtFinalTotalPrice;
+		}
+
+	</script>
+</body>
+</html>

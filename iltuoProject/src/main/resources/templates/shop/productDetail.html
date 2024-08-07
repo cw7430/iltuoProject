@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org"
+	xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+<title>상품상세보기</title>
+<th:block th:insert="~{fragments::head}" />
+<style type="text/css">
+.comboBox {
+	width: 100%;
+}
+</style>
+</head>
+<body>
+	<th:block th:insert="~{fragments::sub_header}" />
+	<!-- header section end -->
+	<!-- coffee section start -->
+	<div class="container">
+		<div class="row">
+			<div class="col-md-6 mt-5">
+				<img th:src="@{/images/product/{imageName}(imageName=${product.productImageName})}" class="img-fluid" alt="Product Image">
+			</div>
+			<div class="col-md-6 mt-5">
+				<h2 th:text="${product.productName}"></h2>
+				<h6 th:text="${product.productComments}"></h6>
+				<p id="fmtPrice"></p>
+				<form th:action="@{/order/orderOne}" method="post" onsubmit="return validate();">
+					<div class="d-none">
+						<input type="hidden" th:value="${#authentication.name}" id="userID" name="userID" readonly="readonly">
+						<input type="hidden" name="originalPrice" th:value="${product.price}">
+						<input type="hidden" id="mainCategoryID" th:value="${product.mainCategoryID}" name="mainCategoryID" readonly="readonly">
+						<input type="hidden" id="productID" th:value="${product.productID}" name="productID" readonly="readonly">
+						<input type="hidden" id="optionGrade" th:value="${product.optionGrade}" readonly="readonly">
+						<input type="hidden" name="orderPrice" id="adjustedPrice" readonly="readonly">
+					</div>
+					<table class="table">
+						<tbody>
+							<tr>
+								<th scope="row">수량</th>
+								<td>
+									<input type="number" class="form-control" id="count" name="count" value="1" min="1" onchange="updateTotalPrice()">
+								</td>
+							</tr>
+							<tr th:if="${!product.optionGrade.equals('OT0')}">
+								<th scope="row" th:text="${optionList.majorOptionCategory}"></th>
+								<td>
+									<select class="comboBox" id="majorOptionID" name="majorOptionID" onchange="fetchMajorOptionPrice()">
+										<option selected="selected" value="0">==선택==</option>
+										<option th:each="option : ${majorOptionList}" th:value="${option.majorOptionID}" th:text="${option.finalMajorOptionName}"></option>
+									</select>
+									<input type="hidden" id="majorOptionPrice" name="majorOptionPrice" readonly="readonly">
+									<input type="hidden" id="majorOptionCategory" name="majorOptionCategory" th:value="${optionList.majorOptionCategory}" readonly="readonly">
+								</td>
+							</tr>
+							<tr th:if="${!product.optionGrade.equals('OT0') and !product.optionGrade.equals('OT1')}">
+								<th scope="row" th:text="${optionList.subOptionCategory}"></th>
+								<td>
+									<select class="comboBox" id="subOptionID" name="subOptionID" onchange="fetchSubOptionPrice()">
+										<option id="subOptionIDNull" selected="selected" value="0" th:text="${optionList.majorOptionCategory} + '먼저 선택하여주세요'"></option>
+									</select>
+									<input type="hidden" id="subOptionPrice" name="subOptionPrice" readonly="readonly">
+									<input type="hidden" id="subOptionCategory" name="subOptionCategory" th:value="${optionList.subOptionCategory}" readonly="readonly">
+								</td>
+							</tr>
+							<tr th:if="${!product.optionGrade.equals('OT0') and !product.optionGrade.equals('OT1') and !product.optionGrade.equals('OT2')}">
+								<th scope="row" th:text="${optionList.minerOptionCategory}"></th>
+								<td>
+									<select class="comboBox" id="minerOptionID" name="minerOptionID" onchange="fetchMinerOptionPrice()">
+										<option selected="selected" value="0" th:text="${optionList.subOptionCategory} + '먼저 선택하여주세요'"></option>
+									</select>
+									<input type="hidden" id="minerOptionPrice" name="minerOptionPrice" readonly="readonly">
+									<input type="hidden" id="minerOptionCategory" name="minerOptionCategory" th:value="${optionList.minerOptionCategory}" readonly="readonly">
+								</td>
+							</tr>
+							<tr>
+								<th>총 상품 가격</th>
+								<td><span id="totalPrice"></span></td>
+							</tr>
+						</tbody>
+					</table>
+					<div class="row mt-5 mb-5" style="display: flex; justify-content: right; align-items: center; gap: 10px;">
+						<button type="button" class="btn btn-primary" onclick="addToCart()">장바구니</button>
+						<button type="submit" class="btn btn-danger">바로구매</button>
+						<a class="btn btn-info" style="color: #FFFFFF;" th:href="@{/productList(mainCategoryID=${product.mainCategoryID})}">목록으로</a>
+					</div>
+				</form>
+			</div>
+		</div>
+	</div>
+	<!-- coffee section end -->
+	<!-- footer section start -->
+	<th:block th:insert="~{fragments::footer}" />
+
+	<!-- Javascript files-->
+	<th:block th:insert="~{fragments::script}" />
+	<script th:inline="javascript">
+		document.addEventListener('DOMContentLoaded', () => {
+			updatePrice();
+			updateTotalPrice();
+		});
+		
+		function updatePrice() {
+			const majorOptionPriceElement = document.getElementById('majorOptionPrice');
+			const subOptionPriceElement = document.getElementById('subOptionPrice');
+			const minerOptionPriceElement = document.getElementById('minerOptionPrice');
+			const priceElement = document.getElementById('adjustedPrice');
+			
+			let majorOptionPrice = 0;
+			let subOptionPrice = 0;
+			let minerOptionPrice = 0;
+			let price = 0;
+			
+			if (majorOptionPriceElement && majorOptionPriceElement.value) {
+				majorOptionPrice = parseInt(majorOptionPriceElement.value) || 0;
+			}
+			
+			if (subOptionPriceElement && subOptionPriceElement.value) {
+				subOptionPrice = parseInt(subOptionPriceElement.value) || 0;
+			}
+			
+			if (minerOptionPriceElement && minerOptionPriceElement.value) {
+				minerOptionPrice = parseInt(minerOptionPriceElement.value) || 0;
+			}
+			
+			if (minerOptionPrice > 0) {
+				price = minerOptionPrice;
+			} else if (subOptionPrice > 0) {
+				price = subOptionPrice;
+			} else if (majorOptionPrice > 0) {
+				price = majorOptionPrice;
+			} else {
+				price = /*[[${product.price}]]*/ '0';
+			}
+			
+			priceElement.value = price;
+			document.getElementById('fmtPrice').innerText = price.toLocaleString() + '원';
+			
+		}
+		
+		function updateTotalPrice() {
+			const price = parseInt(document.getElementById('adjustedPrice').value);
+			const count = document.getElementById('count').value;
+			const totalPrice = price * count;	
+			document.getElementById('totalPrice').innerText = totalPrice.toLocaleString() + '원';
+		}
+	
+		function fetchMajorOptionPrice() {
+			const productID = document.getElementById('productID').value;
+			const majorOptionID = document.getElementById('majorOptionID').value;
+			console.log('fetchMajorOptionPrice called');
+			if (majorOptionID !== "0") {
+				const url = `/productDetail/getMajorOptionPrice?productID=${productID}&majorOptionID=${majorOptionID}`;
+				fetch(url)
+					.then(response => response.text())
+					.then(data => {
+						console.log('Fetched Data:', data);
+						const majorOptionPriceElement = document.getElementById('majorOptionPrice');
+						if (majorOptionPriceElement) {
+							majorOptionPriceElement.value = data;
+							fetchSubOptionList(productID, data);
+							console.log('majorOptionPrice set to:', majorOptionPriceElement.value);
+						} else {
+							console.error('Element with ID "majorOptionPrice" not found.');
+						}
+						document.getElementById('minerOptionPrice').value = '';
+						document.getElementById('subOptionPrice').value = '';
+						clearMinerOptions();
+						clearSubOptions();
+						updatePrice();
+						updateTotalPrice();
+					})
+					.catch(error => console.error('Error:', error));
+			} else {
+				document.getElementById('minerOptionPrice').value = '';
+				document.getElementById('subOptionPrice').value = '';
+				document.getElementById('majorOptionPrice').value = '';
+				clearMinerOptions();
+				clearSubOptions();
+				updatePrice();
+				updateTotalPrice();
+			}
+		}
+		
+		function fetchSubOptionList(productID, majorOptionPrice) {
+			if (majorOptionPrice) {
+				const url = `/productDetail/getSubOptionList?productID=${productID}&majorOptionPrice=${majorOptionPrice}`;
+				fetch(url)
+					.then(response => {
+						if (!response.ok) {
+							throw new Error('Network response was not ok ' + response.statusText);
+						}
+						return response.json();
+					})
+					.then(data => {
+						console.log('서브 옵션 리스트 가져옴:', data);
+						updateSubOptions(data);
+					})
+					.catch(error => console.error('오류:', error));
+			} else {
+				clearSubOptions();
+			}
+		}
+		
+		function updateSubOptions(subOptions) {
+			const subOptionSelect = document.getElementById('subOptionID');
+			subOptionSelect.innerHTML = '';
+			const defaultOption = document.createElement('option');
+			defaultOption.value = 0;
+			defaultOption.text = '==선택==';
+			subOptionSelect.add(defaultOption);
+			
+			subOptions.forEach(option => {
+				const opt = document.createElement('option');
+				opt.value = option.subOptionID;
+				opt.text = option.finalSubOptionName;
+				subOptionSelect.add(opt);
+			});
+			
+			$(subOptionSelect).niceSelect('update');
+		}
+		
+		function clearSubOptions() {
+			const subOptionSelect = document.getElementById('subOptionID');
+			const defaultOptionName = document.getElementById('majorOptionCategory').value;
+			subOptionSelect.innerHTML = '';
+			const defaultOption = document.createElement('option');
+			defaultOption.value = 0;
+			defaultOption.text = defaultOptionName + ' 먼저 선택하여주세요';
+			subOptionSelect.add(defaultOption);
+			$(subOptionSelect).niceSelect('update');
+		}
+		
+		function fetchSubOptionPrice() {
+			const productID = document.getElementById('productID').value;
+			const subOptionID = document.getElementById('subOptionID').value;
+			const majorOptionPrice = document.getElementById('majorOptionPrice').value;
+			console.log('fetchSubOptionPrice called');
+			if (subOptionID !== "0") {
+				const url = `/productDetail/getSubOptionPrice?subOptionID=${subOptionID}&majorOptionPrice=${majorOptionPrice}`;
+				fetch(url)
+					.then(response => response.text())
+					.then(data => {
+						console.log('Fetched Data:', data);
+						const subOptionPriceElement = document.getElementById('subOptionPrice');
+						if (subOptionPriceElement) {
+							subOptionPriceElement.value = data;
+							fetchMinerOptionList(productID, data);
+							console.log('subOptionPrice set to:', subOptionPriceElement.value);
+						} else {
+							console.error('Element with ID "subOptionPrice" not found.');
+						}
+						document.getElementById('minerOptionPrice').value = '';
+						clearMinerOptions();
+						updatePrice();
+						updateTotalPrice();
+					})
+					.catch(error => console.error('Error:', error));
+			} else {
+				document.getElementById('minerOptionPrice').value = '';
+				document.getElementById('subOptionPrice').value = '';
+				clearMinerOptions();
+				updatePrice();
+				updateTotalPrice();
+			}
+		}
+		
+		function fetchMinerOptionList(productID, subOptionPrice) {
+			if (subOptionPrice) {
+				const url = `/productDetail/getMinerOptionList?productID=${productID}&subOptionPrice=${subOptionPrice}`;
+				fetch(url)
+					.then(response => {
+						if (!response.ok) {
+							throw new Error('Network response was not ok ' + response.statusText);
+						}
+						return response.json();
+					})
+					.then(data => {
+						console.log('마이너 옵션 리스트 가져옴:', data);
+						updateMinerOptions(data);
+					})
+					.catch(error => console.error('오류:', error));
+			} else {
+				clearMinerOptions();
+			}
+		}
+		
+		function updateMinerOptions(minerOptions) {
+			const minerOptionSelect = document.getElementById('minerOptionID');
+			minerOptionSelect.innerHTML = '';
+			const defaultOption = document.createElement('option');
+			defaultOption.value = 0;
+			defaultOption.text = '==선택==';
+			minerOptionSelect.add(defaultOption);
+			
+			minerOptions.forEach(option => {
+				const opt = document.createElement('option');
+				opt.value = option.minerOptionID;
+				opt.text = option.finalMinerOptionName;
+				minerOptionSelect.add(opt);
+			});
+			
+			$(minerOptionSelect).niceSelect('update');
+		}
+		
+		function clearMinerOptions() {
+			const minerOptionSelect = document.getElementById('minerOptionID');
+			const defaultOptionName = document.getElementById('subOptionCategory').value;
+			minerOptionSelect.innerHTML = '';
+			const defaultOption = document.createElement('option');
+			defaultOption.value = 0;
+			defaultOption.text = defaultOptionName + ' 먼저 선택하여주세요';
+			minerOptionSelect.add(defaultOption);
+			$(minerOptionSelect).niceSelect('update');
+		}
+		
+		function fetchMinerOptionPrice() {
+			const minerOptionID = document.getElementById('minerOptionID').value;
+			const subOptionPrice = document.getElementById('subOptionPrice').value;
+			console.log('fetchMinerOptionPrice called');
+			if (minerOptionID !== "0") {
+				const url = `/productDetail/getMinerOptionPrice?minerOptionID=${minerOptionID}&subOptionPrice=${subOptionPrice}`;
+				fetch(url)
+					.then(response => response.text())
+					.then(data => {
+						console.log('Fetched Data:', data);
+						const minerOptionPriceElement = document.getElementById('minerOptionPrice');
+						if (minerOptionPriceElement) {
+							minerOptionPriceElement.value = data;
+							console.log('minerOptionPrice set to:', minerOptionPriceElement.value);
+						} else {
+							console.error('Element with ID "minerOptionPrice" not found.');
+						}
+						updatePrice();
+						updateTotalPrice();
+					})
+					.catch(error => console.error('Error:', error));
+			} else {
+				document.getElementById('minerOptionPrice').value = '';
+				updatePrice();
+				updateTotalPrice();
+			}
+		}
+		
+		function loginValidate() {
+			let isValid = true;
+			let errMsg = "";
+			
+			const userID = document.getElementById('userID').value.trim();
+			
+			if(userID === "" || userID === "anonymousUser") {
+				errMsg += "로그인 후 진행하여주세요\n";
+				isValid = false;
+			}
+			
+			if (!isValid) {
+				alert(errMsg);
+				window.location.href = '/login';
+			}
+			
+			return isValid;
+		}
+		
+		function validate() {
+			if (!loginValidate()) return;
+			
+			let isValid = true;
+			let errMsg = "";
+			
+			const optionGrade = document.getElementById('optionGrade').value.trim();	
+			if(optionGrade === 'OT1' && optionGrade === 'OT2' && optionGrade === 'OT3') {
+				const majorOptionID = document.getElementById('majorOptionID').value.trim();
+				const majorOptionCategory = document.getElementById('majorOptionCategory').value.trim();
+				if(majorOptionID === "0" || majorOptionID === "") {
+					errMsg += majorOptionCategory + " 을(를) 선택해주세요\n";
+					isValid = false;
+				}	
+			}
+			
+			if(optionGrade === 'OT2' && optionGrade === 'OT3') {
+				const majorOptionID = document.getElementById('majorOptionID').value.trim();
+				const majorOptionCategory = document.getElementById('majorOptionCategory').value.trim();
+				const subOptionID = document.getElementById('subOptionID').value.trim();
+				const subOptionCategory = document.getElementById('subOptionCategory').value.trim();
+				if(majorOptionID === "0" || majorOptionID === "") {
+					errMsg += majorOptionCategory + " 을(를) 선택해주세요\n";
+					isValid = false;
+				}
+				if(subOptionID === "0" || subOptionID === "") {
+					errMsg += subOptionCategory + " 을(를) 선택해주세요\n";
+					isValid = false;
+				}
+			}
+			
+			if(optionGrade === 'OT3') {
+				const majorOptionID = document.getElementById('majorOptionID').value.trim();
+				const majorOptionCategory = document.getElementById('majorOptionCategory').value.trim();
+				const subOptionID = document.getElementById('subOptionID').value.trim();
+				const subOptionCategory = document.getElementById('subOptionCategory').value.trim();
+				const minerOptionID = document.getElementById('minerOptionID').value.trim();
+				const minerOptionCategory = document.getElementById('minerOptionCategory').value.trim();
+				if(majorOptionID === "0" || majorOptionID === "") {
+					errMsg += majorOptionCategory + " 을(를) 선택해주세요\n";
+					isValid = false;
+				}
+				if(subOptionID === "0" || subOptionID === "") {
+					errMsg += subOptionCategory + " 을(를) 선택해주세요\n";
+					isValid = false;
+				}
+				if(minerOptionID === "0" || minerOptionID === "") {
+					errMsg += minerOptionCategory + " 을(를) 선택해주세요\n";
+					isValid = false;
+				}
+			}
+			
+			if (!isValid) {
+				alert(errMsg);
+			}
+			
+			return isValid;
+		}
+		
+		function addToCart() {
+			if (!validate()) return;
+			
+			const userID = document.getElementById('userID').value.trim();
+			const productID = document.getElementById('productID').value.trim();
+			const count = document.getElementById('count').value.trim();
+			const optionGrade = document.getElementById('optionGrade').value.trim();
+			const url = "/cart";
+			
+			let majorOptionID = '0';
+			let subOptionID = '0';
+			let minerOptionID = '0';
+			
+			if(optionGrade === 'OT1' || optionGrade === 'OT2' || optionGrade === 'OT3') {
+				majorOptionID = document.getElementById('majorOptionID').value.trim();
+			}
+			
+			if(optionGrade === 'OT2' || optionGrade === 'OT3') {
+				subOptionID = document.getElementById('subOptionID').value.trim();
+			} 
+			
+			if(optionGrade === 'OT3') {
+				minerOptionID = document.getElementById('minerOptionID').value.trim();
+			}
+			
+			const data = {
+				userID: userID,
+				productID: productID,
+				count: count,
+				majorOptionID: majorOptionID,
+				subOptionID: subOptionID,
+				minerOptionID: minerOptionID
+			};
+			
+			
+			fetch(url, {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json'
+				},
+				body: JSON.stringify(data)
+			})
+			.then(response => response.json())
+			.then(result => {
+				if (result === 0) {
+					alert('장바구니 등록 중 오류가 발생하였습니다.');
+				} else if (result === 1) {
+					if (confirm('장바구니 페이지로 이동하시겠습니까?')) {
+						window.location.href = url + '?userID=' + userID;
+					}
+				}
+			})
+			.catch(error => {
+				console.error('Error:', error);
+				alert('장바구니 등록 중 오류가 발생하였습니다.');
+			});
+		}
+		
+	</script>
+</body>
+</html>

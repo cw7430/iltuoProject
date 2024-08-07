@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org"
+	xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+<title>옵션관리</title>
+<th:block th:insert="~{fragments::head}" />
+<style type="text/css">
+body {
+	display: flex;
+	flex-direction: column;
+	min-height: 100vh;
+}
+
+.container {
+	flex: 1;
+}
+
+footer {
+	margin-top: auto;
+}
+
+.nice-select {
+	width: 200px;
+}
+</style>
+</head>
+<body class="d-flex flex-column min-vh-100">
+	<!-- header section start -->
+	<th:block th:insert="~{fragments::admin_sub_header}" />
+	<!-- header section end -->
+	<!-- contents section start -->
+	<div class="container flex-grow-1">
+		<div class="row">
+			<div class="col mt-5">
+				<h2 class="mb-4">옵션관리</h2>
+			</div>
+		</div>
+		<div class="row">
+			<div class="table-responsive">
+				<table class="table">
+					<thead class="table-dark">
+						<tr>
+							<th>기본설정</th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr height="213px">
+							<td>
+								<form th:action="@{/optionDetail/updateOptionGrade}" method="post" onsubmit="return confirmUpdate();">
+									<input type="hidden" name="mainCategoryID" th:value="${mainCategory.mainCategoryID}" readonly="readonly">
+									<input type="hidden" name="optionValidID" value="OPV1" readonly="readonly">
+									<select name="optionGrade">
+										<option  th:each="optionGradeList : ${optionGradeList}"
+											th:value="${optionGradeList.optionGrade}"
+											th:text="${optionGradeList.optionGradeText}"
+											th:selected="${optionGradeList.optionGrade.equals(mainCategory.optionGrade)}"></option>
+									</select>
+									&nbsp;&nbsp;&nbsp;
+									<button type="submit" class="btn btn-success">수정하기</button>
+								</form>
+							</td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+		</div>
+		<div class="row" th:if="${mainCategory.optionGrade.equals('OT1') OR mainCategory.optionGrade.equals('OT2') OR mainCategory.optionGrade.equals('OT3')}">
+			<div class="table-responsive mt-5">
+				<table class="table">
+					<thead class="table-dark">
+						<tr>
+							<th colspan="5">
+								<input type="text" th:if="${#lists.size(majorOptionList) == 0}" placeholder="옵션분류명" oninput="document.getElementById('majorOptionCategory').value = this.value;">
+								<span th:if="${#lists.size(majorOptionList) != 0}" th:text="${optionList.majorOptionCategory}"></span>
+							</th>
+						</tr>
+					</thead>
+					<tr>
+						<td colspan="5" th:if="${#lists.size(majorOptionList) == 0}">등록된 옵션이 없습니다.</td>
+					</tr>
+					<tbody>
+						<tr th:each="majorOptionList : ${majorOptionList}" th:if="${#lists.size(majorOptionList) != 0}">
+							<td width="19%"><input type="text" th:value="${majorOptionList.sortOrder}" class="majorOptionSortOrderInput" placeholder="순번"></td>
+							<td width="19%"><span th:text="${majorOptionList.majorOptionName}"></span></td>
+							<td width="19%"><span th:text="${majorOptionList.isPriceChangeText}"></span></td>
+							<td width="19%"><span th:text="${majorOptionList.priceChanges}"></span></td>
+							<td width="24%">
+								<div style="display: inline-block;">
+									<form th:action="@{/optionDetail/updateMajorOptionSort}" method="post" onsubmit="return confirmUpdate();">
+										<input type="hidden" name="mainCategoryID" th:value="${mainCategory.mainCategoryID}" readonly="readonly">
+										<input type="hidden" th:value="${majorOptionList.majorOptionID}" name="majorOptionID" readonly="readonly">
+										<input type="hidden" class="majorOptionSortOrderOutput" name="sortOrder" readonly="readonly">
+										<button type="button" class="btn btn-primary">순번수정하기</button>
+									</form>
+								</div>
+								<div style="display: inline-block;">
+									<form th:action="@{/optionDetail/deleteMajorOptionOne}" method="post" onsubmit="return confirmDelete()">
+										<input type="hidden" name="mainCategoryID" th:value="${mainCategory.mainCategoryID}" readonly="readonly">
+										<input type="hidden" th:value="${majorOptionList.majorOptionID}" name="majorOptionID" readonly="readonly">
+										<input type="hidden" name="optionValidID" value="OPV1" readonly="readonly">
+										<button type="button" class="btn btn-danger">삭제하기</button>
+									</form>
+								</div>
+							</td>
+						</tr>
+					</tbody>
+				</table>
+				<form th:action="@{/optionDetail/insertMajorOption}" method="post" onsubmit="return confirmInsert()">
+					<table class="table">
+						<tr height="213px">
+							<td width="19%"><input type="text" name="sortOrder" placeholder="순번" required="required"></td>
+							<td width="19%"><input type="text" name="majorOptionName" placeholder="옵션명" required="required"></td>
+							<td width="19%">
+								<select name="isPriceChangeID">
+									<option th:each="isPriceChangeList : ${isPriceChangeList}"
+										th:value="${isPriceChangeList.isPriceChangeID}"
+										th:text="${isPriceChangeList.isPriceChangeText}"></option>
+								</select>
+							</td>
+							<td width="19%"><input type="text" name="priceChanges" placeholder="변동가격" required="required"></td>
+							<td width="24%">
+								<input type="hidden" th:if="${#lists.size(majorOptionList) == 0}" name="majorOptionCategory" id="majorOptionCategory" readonly="readonly">
+								<input type="hidden" th:value="${optionList.majorOptionCategory}" th:if="${#lists.size(majorOptionList) != 0}" name="majorOptionCategory" readonly="readonly">
+								<button type="button" class="btn btn-success">등록하기</button>
+							</td>
+						</tr>
+					</table>
+				</form>
+			</div>
+		</div>
+		<div class="row" th:if="${mainCategory.optionGrade.equals('OT2') OR mainCategory.optionGrade.equals('OT3')}">
+			<div class="table-responsive mt-5">
+				<table class="table">
+					<thead class="table-dark">
+						<tr>
+							<th colspan="5">
+								<input type="text" th:if="${#lists.size(subOptionList) == 0}" oninput="document.getElementById('subOptionCategory').value = this.value;" placeholder="옵션분류명">
+								<span th:if="${#lists.size(subOptionList) != 0}" th:text="${optionList.subOptionCategory}"></span>
+							</th>
+						</tr>
+					</thead>
+					<tr>
+						<td colspan="5" th:if="${#lists.size(subOptionList) == 0}">등록된 옵션이 없습니다.</td>
+					</tr>
+					<tbody>
+						<tr th:each="subOptionList : ${subOptionList}" th:if="${#lists.size(subOptionList) != 0}">
+							<td width="19%"><input type="text" th:value="${subOptionList.sortOrder}" class="subOptionSortOrderInput" placeholder="순번"></td>
+							<td width="19%"><span th:text="${subOptionList.subOptionName}"></span></td>
+							<td width="19%"><span th:text="${subOptionList.isPriceChangeText}"></span></td>
+							<td width="19%"><span th:text="${subOptionList.priceChanges}"></span></td>
+							<td width="24%">
+								<div style="display: inline-block;">
+									<form th:action="@{/optionDetail/updateSubOptionSort}" method="post" onsubmit="return confirmUpdate();">
+										<input type="hidden" name="mainCategoryID" th:value="${mainCategory.mainCategoryID}" readonly="readonly">
+										<input type="hidden" th:value="${subOptionList.subOptionID}" name="subOptionID" readonly="readonly">
+										<input type="hidden" class="subOptionSortOrderOutput" name="sortOrder" readonly="readonly">
+										<button type="button" class="btn btn-primary">순번수정하기</button>
+									</form>
+								</div>
+								<div style="display: inline-block;">
+									<form th:action="@{/optionDetail/deleteSubOptionOne}" method="post" onsubmit="return confirmDelete()">
+										<input type="hidden" name="mainCategoryID" th:value="${mainCategory.mainCategoryID}" readonly="readonly">
+										<input type="hidden" th:value="${subOptionList.subOptionID}" name="subOptionID" readonly="readonly">
+										<input type="hidden" name="optionValidID" value="OPV1" readonly="readonly">
+										<button type="button" class="btn btn-danger">삭제하기</button>
+									</form>
+								</div>
+							</td>
+						</tr>
+					</tbody>
+				</table>
+				<form th:action="@{/optionDetail/insertSubOption}" method="post" onsubmit="return confirmInsert()">
+					<table class="table">
+						<tr height="213px">
+							<td width="19%"><input type="text" name="sortOrder" placeholder="순번" required="required"></td>
+							<td width="19%"><input type="text" name="majorOptionName" placeholder="옵션명" required="required"></td>
+							<td width="19%">
+								<select name="isPriceChangeID">
+									<option th:each="isPriceChangeList : ${isPriceChangeList}"
+										th:value="${isPriceChangeList.isPriceChangeID}"
+										th:text="${isPriceChangeList.isPriceChangeText}"></option>
+								</select>
+							</td>
+							<td width="19%"><input type="text" name="priceChanges" placeholder="변동가격" required="required"></td>
+							<td width="24%">
+								<input type="hidden" th:value="${optionList.subOptionCategory}" th:if="${#lists.size(subOptionList) != 0}" name="subOptionCategory" readonly="readonly">
+								<input type="hidden" th:if="${#lists.size(subOptionList) == 0}" name="subOptionCategory" id="subOptionCategory" readonly="readonly">
+								<button type="button" class="btn btn-success">등록하기</button>
+							</td>
+						</tr>
+					</table>
+				</form>
+			</div>
+		</div>
+		<div class="row" th:if="${mainCategory.optionGrade.equals('OT3')}">
+			<div class="table-responsive mt-5">
+				<table class="table">
+					<thead class="table-dark">
+						<tr>
+							<th colspan="5">
+								<input type="text" th:if="${#lists.size(minerOptionList) == 0}" oninput="document.getElementById('minerOptionCategory').value = this.value;" placeholder="옵션분류명">
+								<span th:if="${#lists.size(minerOptionList) != 0}" th:text="${optionList.minerOptionCategory}"></span>
+							</th>
+						</tr>
+					</thead>
+					<tr>
+						<td colspan="5" th:if="${#lists.size(minerOptionList) == 0}">등록된 옵션이 없습니다.</td>
+					</tr>
+					<tbody>
+						<tr th:each="minerOptionList : ${minerOptionList}" th:if="${#lists.size(minerOptionList) != 0}">
+							<td width="19%"><input type="text" class="minerOptionSortOrderInput" th:value="${minerOptionList.sortOrder}" placeholder="순번"></td>
+							<td width="19%"><span th:text="${minerOptionList.minerOptionName}"></span></td>
+							<td width="19%"><span th:text="${minerOptionList.isPriceChangeText}"></span></td>
+							<td width="19%"><span th:text="${minerOptionList.priceChanges}"></span></td>
+							<td width="24%">
+								<div style="display: inline-block;">
+									<form th:action="@{/optionDetail/updateMinerOptionSort}" method="post" onsubmit="return confirmUpdate();">
+										<input type="hidden" name="mainCategoryID" th:value="${mainCategory.mainCategoryID}" readonly="readonly">
+										<input type="hidden" th:value="${minerOptionList.minerOptionID}" name="minerOptionID" readonly="readonly">
+										<input type="hidden" class="minerOptionSortOrderOutput" name="sortOrder" readonly="readonly">
+										<button type="button" class="btn btn-primary">순번수정하기</button>
+									</form>
+								</div>
+								<div style="display: inline-block;">
+									<form th:action="@{/optionDetail/deleteMinerOptionOne}" method="post" onsubmit="return confirmDelete()">
+										<input type="hidden" name="mainCategoryID" th:value="${mainCategory.mainCategoryID}" readonly="readonly">
+										<input type="hidden" th:value="${minerOptionList.minerOptionID}" name="minerOptionID" readonly="readonly">
+										<input type="hidden" name="optionValidID" value="OPV1" readonly="readonly">
+										<button type="button" class="btn btn-danger">삭제하기</button>
+									</form>
+								</div>
+							</td>
+						</tr>
+					</tbody>
+				</table>
+				<form th:action="@{/optionDetail/insertMinerOption}" method="post" onsubmit="return confirmInsert()">
+					<table class="table">
+						<tr height="213px">
+							<td width="19%"><input type="text" name="sortOrder" placeholder="순번" required="required"></td>
+							<td width="19%"><input type="text" name="majorOptionName" placeholder="옵션명" required="required"></td>
+							<td width="19%">
+								<select class="comboBox" name="isPriceChangeID">
+									<option th:each="isPriceChangeList : ${isPriceChangeList}"
+										th:value="${isPriceChangeList.isPriceChangeID}"
+										th:text="${isPriceChangeList.isPriceChangeText}"></option>
+								</select>
+							</td>
+							<td width="19%"><input type="text" name="priceChanges" placeholder="변동가격" required="required"></td>
+							<td width="24%">
+								<input type="hidden" th:value="${optionList.minerOptionCategory}" th:if="${#lists.size(minerOptionList) != 0}" name="minerOptionCategory" readonly="readonly">
+								<input type="hidden" th:if="${#lists.size(minerOptionList) == 0}" name="minerOptionCategory" id="minerOptionCategory" readonly="readonly">
+								<button type="button" class="btn btn-success">등록하기</button>
+							</td>
+						</tr>
+					</table>
+				</form>
+			</div>
+		</div>
+	</div>
+	<!-- contents section end -->
+
+	<!-- footer section start -->
+	<footer class="mt-auto">
+		<th:block th:insert="~{fragments::footer}" />
+	</footer>
+	<!-- footer section end -->
+
+	<!-- Javascript files-->
+	<th:block th:insert="~{fragments::script}" />
+	<script th:inline="javascript">
+		document.addEventListener('DOMContentLoaded', () => {
+			let m = /*[[${msg}]]*/ '기본값';
+		    if (m !== null && m !== '기본값') {
+		        alert(m);
+		    }
+		    
+			let majorSortInputs = document.querySelectorAll('.majorOptionSortOrderInput');
+			let majorSortOutputs = document.querySelectorAll('.majorOptionSortOrderOutput');
+			let subSortInputs = document.querySelectorAll('.subOptionSortOrderInput');
+			let subSortOutputs = document.querySelectorAll('.subOptionSortOrderOutput');
+			let minerSortInputs = document.querySelectorAll('.minerOptionSortOrderInput');
+			let minerSortOutputs = document.querySelectorAll('.minerOptionSortOrderOutput');
+
+			majorSortInputs.forEach((input, index) => {
+				majorSortOutputs[index].value = input.value;
+			});
+
+			subSortInputs.forEach((input, index) => {
+				subSortOutputs[index].value = input.value;
+			});
+			
+			minerSortInputs.forEach((input, index) => {
+				minerSortOutputs[index].value = input.value;
+			});
+
+			majorSortInputs.forEach((input, index) => {
+				input.addEventListener('input', function () {
+					majorSortOutputs[index].value = input.value;
+				});
+			});
+
+			subSortInputs.forEach((input, index) => {
+				input.addEventListener('input', function () {
+					subSortOutputs[index].value = input.value;
+				});
+			});
+			
+			minerSortInputs.forEach((input, index) => {
+				input.addEventListener('input', function () {
+					minerSortOutputs[index].value = input.value;
+				});
+			});
+		});
+		
+		function confirmInsert() {
+			let isValid = true;
+			let confirmMsg = "해당 분류를 등록 하시겠습니까?";
+			
+			if (!confirm(confirmMsg)) {
+				isValid = false;
+			}
+			
+			return isValid;
+		}
+		
+		function confirmUpdate() {
+			let isValid = true;
+			let confirmMsg = "해당 분류를 수정 하시겠습니까?";
+			
+			if (!confirm(confirmMsg)) {
+				isValid = false;
+			}
+			
+			return isValid;
+		}
+			
+		function confirmDelete() {
+			let isValid = true;
+			let confirmMsg = "해당 분류를 삭제 하시겠습니까?";
+			
+			if (!confirm(confirmMsg)) {
+				isValid = false;
+			}
+			
+			return isValid;
+		}
+	</script>
+</body>
+</html>

@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org"
+	xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+<title>결제하기</title>
+<th:block th:insert="~{fragments::head}" />
+<style type="text/css">
+	.cardNumber {
+		margin-right: 1%;
+	}
+</style>
+</head>
+<body>
+	<!-- 헤더 섹션 시작 -->
+	<th:block th:insert="~{fragments::sub_header}" />
+	<!-- 헤더 섹션 끝 -->
+
+	<!-- 내용 섹션 시작 -->
+	<div class="container">
+		<form th:action="@{/payment}" method="post" onsubmit="return validate();" enctype="multipart/form-data">
+			<div class="row">
+				<div class="col mt-5">
+					<h2 class="mb-4">결제하기</h2>
+				</div>
+				<input type="hidden" th:value="${#authentication.name}" id="userID" name="userID" readonly="readonly">
+				<input type="hidden" name="priceID" id="priceID" th:value="${price.priceID}" readonly="readonly">
+				<input type="hidden" name="paymentStatusID" id="paymentStatusID" readonly="readonly">
+			</div>
+			<table class="table">
+				<tbody>
+					<tr>
+						<th scope="row">총 상품금액</th>
+						<td th:text="${price.fmtProductPrice}"></td>
+					</tr>
+					<tr>
+						<th scope="row">배송비</th>
+						<td th:text="${price.fmtDeliveryPrice}"></td>
+					</tr>
+					<tr>
+						<th scope="row">총 결제금액</th>
+						<td th:text="${price.fmtTotalPrice}"></td>
+					</tr>
+					<tr>
+						<th scope="row">주소</th>
+						<td>
+							등록된 주소 선택&nbsp;&nbsp;<input type="radio" value="A" name="addressSelect" onclick="showRegisteredAddress();">&nbsp;&nbsp;&nbsp;&nbsp;
+							등록되지 않은 주소 입력&nbsp;&nbsp;<input type="radio" value="B" name="addressSelect" onclick="showUnregisteredAddress();">
+						</td>
+					</tr>
+				</tbody>
+				<tbody id="registeredAddressTbody" style="display: none;">
+					<tr>
+						<th scope="row" th:rowspan="${#lists.size(address) + 1}">주소 선택</th>
+						<td><input type="radio" th:value="${mainAddress.addressID}" id="mainAddress" name="addressID">&nbsp;&nbsp;<span th:text="'(기본)' + ${mainAddress.fullAddress}"></span></td>
+					</tr>
+					<tr th:each="address : ${address}">
+						<td><input type="radio" th:value="${address.addressID}" name="addressID">&nbsp;&nbsp;<span th:text="${address.fullAddress}"></span></td>
+					</tr>
+				</tbody>
+				<tbody id="unregisteredAddressTbody" style="display: none">
+					<tr>
+						<th scope="row">주소 입력</th>
+						<td>
+							<input type="text" id="postalCode" name="postalCode" readonly="readonly" style="width: 20%; padding: 4px"> &nbsp;
+							<input type="button" class="btn btn-info" onclick="execDaumPostcode()" value="주소검색">
+							<input type="hidden" name="isMainID" value="MN0" readonly="readonly">
+							<input type="hidden" name="optionValidID" value="OPV1" readonly="readonly">
+							<br>
+							<input type="text" id="address" name="address" readonly="readonly" style="width: 70%; padding: 4px">
+							<br>
+							<input type="text" id="detailAddress" name="detailAddress" style="width: 40%; padding: 4px">
+							<input type="text" id="extraAddress" name="extraAddress" readonly="readonly" style="width: 29.5%; padding: 4px">
+							<br><br>
+							<div id="wrap" style="display: none; border: 1px solid; width: 500px; height: 300px; margin: 5px 0; position: relative">
+								<img th:src="@{https://t1.daumcdn.net/postcode/resource/images/close.png}" id="btnFoldWrap" style="cursor: pointer; position: absolute; right: 0px; top: -1px; z-index: 1" onclick="foldDaumPostcode()" alt="접기 버튼">
+							</div>
+						</td>
+					</tr>
+				</tbody>
+				<tbody>
+					<tr>
+						<th scope="row">결제 방법 선택</th>
+						<td>
+							<select id="paymentMethodID" name="paymentMethodID" onchange="changePaymentMethod();">
+								<option selected="selected" value="0">==선택==</option>
+								<option value="PM0">신용카드</option>
+								<option value="PM1">무통장입금</option>
+							</select>
+						</td>
+					</tr>
+				</tbody>
+			</table>
+			<div id="creditCardDetails" class="mt-3" style="display: none;">
+				<h5>신용카드 정보</h5>
+				<div class="mb-3">
+					<label for="cardNumber" class="form-label">카드 번호</label>
+					<div class="d-flex">
+						<input type="text" class="form-control me-2 cardNumber" id="cardNumber1" maxlength="4" oninput="moveFocus(this, 'cardNumber2'); restrictToNumbers(this)">
+    					<input type="password" class="form-control me-2 cardNumber" id="cardNumber2" maxlength="4" oninput="moveFocus(this, 'cardNumber3'); restrictToNumbers(this)">
+    					<input type="password" class="form-control me-2 cardNumber" id="cardNumber3" maxlength="4" oninput="moveFocus(this, 'cardNumber4'); restrictToNumbers(this)">
+						<input type="text" class="form-control cardNumber" id="cardNumber4" maxlength="4" oninput="moveFocus(this, 'cardExpiry'); restrictToNumbers(this)">
+        			</div>
+				</div>
+				<div class="mb-3">
+					<label for="cardExpiry" class="form-label">유효기간</label> <input
+						type="text" class="form-control" id="cardExpiry" maxlength="5"
+						placeholder="MM/YY" oninput="formatExpiry(this)">
+				</div>
+				<div class="mb-3">
+					<label for="cardCVC" class="form-label">CVC</label> <input
+						type="text" class="form-control" id="cardCVC"
+						placeholder="CVC를 입력하세요" maxlength="3" oninput="moveFocus(this, 'cardPassword'); restrictToNumbers(this)">
+				</div>
+				<div class="mb-3">
+					<label for="cardPassword" class="form-label">비밀번호</label> <input
+						type="password" class="form-control" id="cardPassword"
+						placeholder="카드 비밀번호를 입력하세요" maxlength="4" oninput = "restrictToNumbers(this)">
+				</div>
+				<input type="hidden" name="orderStatusID" value="OS1" readonly="readonly">
+			</div>
+
+			<div id="bankTransferDetails" class="mt-3" style="display: none;">
+				<h5>무통장입금 안내</h5>
+				<p>은행명: 신한은행</p>
+				<p>계좌번호: 110-456-789123</p>
+				<p>입금자명: 최사장</p>
+				<p>입금하실 계좌번호는 주문 목록에서 다시 확인하실 수 있습니다.</p>
+			</div>
+			<div class="row mt-5 mb-5" style="display: flex; justify-content: center; align-items: center; gap: 10px;">
+				<input type="submit" class="btn btn-primary mt-4" id="paymentBtn" style="display: none;" value="결제하기">
+				<input type="submit" class="btn btn-primary mt-4" id="paymentRsvBtn" style="display: none;" value="결제예약">
+				<a class="btn btn-danger mt-4" id="cancleBtn" style="color: #FFFFFF" th:href="@{/}">취소</a>
+			</div>
+		</form>
+	</div>
+	<!-- 내용 섹션 끝 -->
+
+	<!-- 푸터 섹션 시작 -->
+	<th:block th:insert="~{fragments::footer}" />
+	<!-- 푸터 섹션 끝 -->
+
+	<!-- 자바스크립트 파일 -->
+	<th:block th:insert="~{fragments::script}" />
+	<!--Daum 주소 API-->
+	<script th:src="@{https://t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js}"></script>
+	<script th:inline="javascript">
+		document.addEventListener('DOMContentLoaded', () => {
+			let m = /*[[${msg}]]*/ '기본값';
+		    if (m !== null && m !== '기본값') {
+		        alert(m);
+		    }
+		});
+		
+		// 우편번호 찾기 찾기 화면을 넣을 element
+		let element_wrap = document.getElementById('wrap');
+
+		function foldDaumPostcode() {
+			// iframe을 넣은 element를 안보이게 한다.
+			element_wrap.style.display = 'none';
+		}
+
+		function execDaumPostcode() {
+			// 현재 scroll 위치를 저장해놓는다.
+			let currentScroll = Math.max(document.body.scrollTop,
+					document.documentElement.scrollTop);
+			new daum.Postcode(
+					{
+						oncomplete : function(data) {
+							// 검색결과 항목을 클릭했을때 실행할 코드를 작성하는 부분.
+
+							// 각 주소의 노출 규칙에 따라 주소를 조합한다.
+							// 내려오는 변수가 값이 없는 경우엔 공백('')값을 가지므로, 이를 참고하여 분기 한다.
+							let addr = ''; // 주소 변수
+							let extraAddr = ''; // 참고항목 변수
+
+							//사용자가 선택한 주소 타입에 따라 해당 주소 값을 가져온다.
+							if (data.userSelectedType === 'R') { // 사용자가 도로명 주소를 선택했을 경우
+								addr = data.roadAddress;
+							} else { // 사용자가 지번 주소를 선택했을 경우(J)
+								addr = data.jibunAddress;
+							}
+
+							// 사용자가 선택한 주소가 도로명 타입일때 참고항목을 조합한다.
+							if (data.userSelectedType === 'R') {
+								// 법정동명이 있을 경우 추가한다. (법정리는 제외)
+								// 법정동의 경우 마지막 문자가 "동/로/가"로 끝난다.
+								if (data.bname !== ''
+										&& /[동|로|가]$/g.test(data.bname)) {
+									extraAddr += data.bname;
+								}
+								// 건물명이 있고, 공동주택일 경우 추가한다.
+								if (data.buildingName !== ''
+										&& data.apartment === 'Y') {
+									extraAddr += (extraAddr !== '' ? ', '
+											+ data.buildingName
+											: data.buildingName);
+								}
+								// 표시할 참고항목이 있을 경우, 괄호까지 추가한 최종 문자열을 만든다.
+								if (extraAddr !== '') {
+									extraAddr = ' (' + extraAddr + ')';
+								}
+								// 조합된 참고항목을 해당 필드에 넣는다.
+								document.getElementById("extraAddress").value = extraAddr;
+
+							} else {
+								document.getElementById("extraAddress").value = '';
+							}
+
+							// 우편번호와 주소 정보를 해당 필드에 넣는다.
+							document.getElementById('postalCode').value = data.zonecode;
+							document.getElementById("address").value = addr;
+
+							// 커서를 상세주소 필드로 이동한다.
+							document.getElementById("detailAddress").focus();
+
+							// iframe을 넣은 element를 안보이게 한다.
+							// (autoClose:false 기능을 이용한다면, 아래 코드를 제거해야 화면에서 사라지지 않는다.)
+							element_wrap.style.display = 'none';
+
+							// 우편번호 찾기 화면이 보이기 이전으로 scroll 위치를 되돌린다.
+							document.body.scrollTop = currentScroll;
+						},
+						// 우편번호 찾기 화면 크기가 조정되었을때 실행할 코드를 작성하는 부분. iframe을 넣은 element의 높이값을 조정한다.
+						onresize : function(size) {
+							element_wrap.style.height = size.height + 'px';
+						},
+						width : '100%',
+						height : '100%'
+					}).embed(element_wrap);
+
+			// iframe을 넣은 element를 보이게 한다.
+			element_wrap.style.display = 'block';
+		}
+		
+		function showRegisteredAddress() {
+			document.getElementById("registeredAddressTbody").style.display = "table-row-group";
+			document.getElementById("unregisteredAddressTbody").style.display = "none";
+			document.getElementById("mainAddress").checked = true;
+		}
+
+		function showUnregisteredAddress() {
+			document.getElementById("registeredAddressTbody").style.display = "none";
+			document.getElementById("unregisteredAddressTbody").style.display = "table-row-group";
+			
+			const radios = document.querySelectorAll('input[name="addressID"]');
+			radios.forEach((radio) => {
+				radio.checked = false;
+			});
+		}
+		
+		function changePaymentMethod() {
+			const paymentMethodID = document.getElementById('paymentMethodID').value;
+			const paymentStatusID = document.getElementById('paymentStatusID');
+			const paymentBtn = document.getElementById('paymentBtn');
+			const paymentRsvBtn = document.getElementById('paymentRsvBtn');
+			const cardDetails = document.querySelectorAll('#creditCardDetails input');
+			
+			if(paymentMethodID === 'PM0') {
+				document.getElementById('creditCardDetails').style.display = 'block';
+				document.getElementById('bankTransferDetails').style.display = 'none';
+				document.getElementById('paymentBtn').style.display = 'block';
+				document.getElementById('paymentRsvBtn').style.display = 'none';
+				paymentStatusID.value = 'PS1';
+				
+				cardDetails.forEach(input => {
+					input.required = true;
+				});
+			} else if(paymentMethodID === 'PM1') {
+				document.getElementById('bankTransferDetails').style.display = 'block';
+				document.getElementById('creditCardDetails').style.display = 'none';
+				document.getElementById('paymentRsvBtn').style.display = 'block';
+				document.getElementById('paymentBtn').style.display = 'none';
+				paymentStatusID.value = 'PS0';
+				
+				cardDetails.forEach(input => {
+					input.required = false;
+				});
+			} else {
+				document.getElementById('creditCardDetails').style.display = 'none';
+				document.getElementById('bankTransferDetails').style.display = 'none';
+				document.getElementById('paymentBtn').style.display = 'none';
+				document.getElementById('paymentRsvBtn').style.display = 'none';
+				paymentStatusID.value = 'PS0';
+				
+				cardDetails.forEach(input => {
+					input.required = false;
+				});
+			}
+		}
+		
+		function moveFocus(current, nextFieldID) {
+			if (current.value.length >= current.maxLength) {
+				document.getElementById(nextFieldID).focus();
+			}
+		}
+		
+		function restrictToNumbers(input) {
+            input.value = input.value.replace(/\D/g, '');
+        }
+		
+		function formatExpiry(input) {
+			const value = input.value.replace(/\D/g, '');
+			if (value.length > 2) {
+				input.value = value.slice(0, 2) + '/' + value.slice(2, 4);
+			} else {
+				input.value = value;
+			}
+			
+			if(input.value.length >= input.maxLength) {
+				document.getElementById('cardCVC').focus();
+			}
+		}
+		
+		function validate() {
+			let isValid = true;
+			let errMsg = "";
+			let confirmMsg = "결제를 진행하시겠습니까?";
+
+			const paymentMethodID = document.getElementById('paymentMethodID').value.trim();
+
+			if(paymentMethodID === "0") {
+				errMsg += "결제가 진행되지 않았습니다.\n";
+				isValid = false;
+			}
+
+			if (!isValid) {
+				alert(errMsg);
+				return false;
+			} else {
+				if (!confirm(confirmMsg)) {
+					return false;
+				}
+			}
+
+		    return true;
+		}
+	</script>
+</body>
+</html>

@@ -1,0 +1,90 @@
+2024-07-23 14:23:52 [restartedMain] DEBUG o.m.s.b.a.MybatisAutoConfiguration - Searching for mappers annotated with @Mapper
+2024-07-23 14:23:52 [restartedMain] DEBUG o.m.s.b.a.MybatisAutoConfiguration - Using auto-configuration base package 'kr.co.iltuo'
+2024-07-23 14:23:52 [restartedMain] DEBUG o.m.s.mapper.ClassPathMapperScanner - Identified candidate component class: file [C:\Users\402-23\Documents\workspace_Iltuo\iltuoProject\bin\main\kr\co\iltuo\mapper\OrderMapper.class]
+2024-07-23 14:23:52 [restartedMain] DEBUG o.m.s.mapper.ClassPathMapperScanner - Identified candidate component class: file [C:\Users\402-23\Documents\workspace_Iltuo\iltuoProject\bin\main\kr\co\iltuo\mapper\ShopMapper.class]
+2024-07-23 14:23:52 [restartedMain] DEBUG o.m.s.mapper.ClassPathMapperScanner - Identified candidate component class: file [C:\Users\402-23\Documents\workspace_Iltuo\iltuoProject\bin\main\kr\co\iltuo\mapper\UserMapper.class]
+2024-07-23 14:23:52 [restartedMain] DEBUG o.m.s.mapper.ClassPathMapperScanner - Creating MapperFactoryBean with name 'orderMapper' and 'kr.co.iltuo.mapper.OrderMapper' mapperInterface
+2024-07-23 14:23:52 [restartedMain] DEBUG o.m.s.mapper.ClassPathMapperScanner - Creating MapperFactoryBean with name 'shopMapper' and 'kr.co.iltuo.mapper.ShopMapper' mapperInterface
+2024-07-23 14:23:52 [restartedMain] DEBUG o.m.s.mapper.ClassPathMapperScanner - Creating MapperFactoryBean with name 'userMapper' and 'kr.co.iltuo.mapper.UserMapper' mapperInterface
+2024-07-23 14:23:52 [restartedMain] DEBUG o.m.spring.SqlSessionFactoryBean - Parsed mapper file: 'file [C:\Users\402-23\Documents\workspace_Iltuo\iltuoProject\bin\main\mappers\OrderMapper.xml]'
+2024-07-23 14:23:52 [restartedMain] DEBUG o.m.spring.SqlSessionFactoryBean - Parsed mapper file: 'file [C:\Users\402-23\Documents\workspace_Iltuo\iltuoProject\bin\main\mappers\OrderMapper.xml]'
+2024-07-23 14:23:52 [restartedMain] DEBUG o.m.spring.SqlSessionFactoryBean - Parsed mapper file: 'file [C:\Users\402-23\Documents\workspace_Iltuo\iltuoProject\bin\main\mappers\ShopMapper.xml]'
+2024-07-23 14:23:52 [restartedMain] DEBUG o.m.spring.SqlSessionFactoryBean - Parsed mapper file: 'file [C:\Users\402-23\Documents\workspace_Iltuo\iltuoProject\bin\main\mappers\ShopMapper.xml]'
+2024-07-23 14:23:52 [restartedMain] DEBUG o.m.spring.SqlSessionFactoryBean - Parsed mapper file: 'file [C:\Users\402-23\Documents\workspace_Iltuo\iltuoProject\bin\main\mappers\UserMapper.xml]'
+2024-07-23 14:23:52 [restartedMain] DEBUG o.m.spring.SqlSessionFactoryBean - Parsed mapper file: 'file [C:\Users\402-23\Documents\workspace_Iltuo\iltuoProject\bin\main\mappers\UserMapper.xml]'
+2024-07-23 14:23:52 [restartedMain] DEBUG o.m.s.b.a.MybatisAutoConfiguration - Not found configuration for registering mapper bean using @MapperScan, MapperFactoryBean and MapperScannerConfigurer.
+2024-07-23 14:24:06 [restartedMain] DEBUG o.m.s.b.a.MybatisAutoConfiguration - Searching for mappers annotated with @Mapper
+2024-07-23 14:24:06 [restartedMain] DEBUG o.m.s.b.a.MybatisAutoConfiguration - Using auto-configuration base package 'kr.co.iltuo'
+2024-07-23 14:24:06 [restartedMain] DEBUG o.m.s.mapper.ClassPathMapperScanner - Identified candidate component class: file [C:\Users\402-23\Documents\workspace_Iltuo\iltuoProject\bin\main\kr\co\iltuo\mapper\OrderMapper.class]
+2024-07-23 14:24:06 [restartedMain] DEBUG o.m.s.mapper.ClassPathMapperScanner - Identified candidate component class: file [C:\Users\402-23\Documents\workspace_Iltuo\iltuoProject\bin\main\kr\co\iltuo\mapper\ShopMapper.class]
+2024-07-23 14:24:06 [restartedMain] DEBUG o.m.s.mapper.ClassPathMapperScanner - Identified candidate component class: file [C:\Users\402-23\Documents\workspace_Iltuo\iltuoProject\bin\main\kr\co\iltuo\mapper\UserMapper.class]
+2024-07-23 14:24:06 [restartedMain] DEBUG o.m.s.mapper.ClassPathMapperScanner - Creating MapperFactoryBean with name 'orderMapper' and 'kr.co.iltuo.mapper.OrderMapper' mapperInterface
+2024-07-23 14:24:06 [restartedMain] DEBUG o.m.s.mapper.ClassPathMapperScanner - Creating MapperFactoryBean with name 'shopMapper' and 'kr.co.iltuo.mapper.ShopMapper' mapperInterface
+2024-07-23 14:24:06 [restartedMain] DEBUG o.m.s.mapper.ClassPathMapperScanner - Creating MapperFactoryBean with name 'userMapper' and 'kr.co.iltuo.mapper.UserMapper' mapperInterface
+2024-07-23 14:24:07 [restartedMain] DEBUG o.m.spring.SqlSessionFactoryBean - Parsed mapper file: 'file [C:\Users\402-23\Documents\workspace_Iltuo\iltuoProject\bin\main\mappers\OrderMapper.xml]'
+2024-07-23 14:24:07 [restartedMain] DEBUG o.m.spring.SqlSessionFactoryBean - Parsed mapper file: 'file [C:\Users\402-23\Documents\workspace_Iltuo\iltuoProject\bin\main\mappers\OrderMapper.xml]'
+2024-07-23 14:24:07 [restartedMain] DEBUG o.m.spring.SqlSessionFactoryBean - Parsed mapper file: 'file [C:\Users\402-23\Documents\workspace_Iltuo\iltuoProject\bin\main\mappers\ShopMapper.xml]'
+2024-07-23 14:24:07 [restartedMain] DEBUG o.m.spring.SqlSessionFactoryBean - Parsed mapper file: 'file [C:\Users\402-23\Documents\workspace_Iltuo\iltuoProject\bin\main\mappers\ShopMapper.xml]'
+2024-07-23 14:24:07 [restartedMain] DEBUG o.m.spring.SqlSessionFactoryBean - Parsed mapper file: 'file [C:\Users\402-23\Documents\workspace_Iltuo\iltuoProject\bin\main\mappers\UserMapper.xml]'
+2024-07-23 14:24:07 [restartedMain] DEBUG o.m.spring.SqlSessionFactoryBean - Parsed mapper file: 'file [C:\Users\402-23\Documents\workspace_Iltuo\iltuoProject\bin\main\mappers\UserMapper.xml]'
+2024-07-23 14:24:07 [restartedMain] DEBUG o.m.s.b.a.MybatisAutoConfiguration - Not found configuration for registering mapper bean using @MapperScan, MapperFactoryBean and MapperScannerConfigurer.
+2024-07-23T14:40:05.092+0900 DEBUG o.m.s.b.a.MybatisAutoConfiguration - Searching for mappers annotated with @Mapper
+2024-07-23T14:40:05.093+0900 DEBUG o.m.s.b.a.MybatisAutoConfiguration - Using auto-configuration base package 'kr.co.iltuo'
+2024-07-23T14:40:05.130+0900 DEBUG o.m.s.mapper.ClassPathMapperScanner - Identified candidate component class: file [C:\Users\402-23\Documents\workspace_Iltuo\iltuoProject\bin\main\kr\co\iltuo\mapper\OrderMapper.class]
+2024-07-23T14:40:05.130+0900 DEBUG o.m.s.mapper.ClassPathMapperScanner - Identified candidate component class: file [C:\Users\402-23\Documents\workspace_Iltuo\iltuoProject\bin\main\kr\co\iltuo\mapper\ShopMapper.class]
+2024-07-23T14:40:05.130+0900 DEBUG o.m.s.mapper.ClassPathMapperScanner - Identified candidate component class: file [C:\Users\402-23\Documents\workspace_Iltuo\iltuoProject\bin\main\kr\co\iltuo\mapper\UserMapper.class]
+2024-07-23T14:40:05.130+0900 DEBUG o.m.s.mapper.ClassPathMapperScanner - Creating MapperFactoryBean with name 'orderMapper' and 'kr.co.iltuo.mapper.OrderMapper' mapperInterface
+2024-07-23T14:40:05.130+0900 DEBUG o.m.s.mapper.ClassPathMapperScanner - Creating MapperFactoryBean with name 'shopMapper' and 'kr.co.iltuo.mapper.ShopMapper' mapperInterface
+2024-07-23T14:40:05.131+0900 DEBUG o.m.s.mapper.ClassPathMapperScanner - Creating MapperFactoryBean with name 'userMapper' and 'kr.co.iltuo.mapper.UserMapper' mapperInterface
+2024-07-23T14:40:05.220+0900 DEBUG o.m.spring.SqlSessionFactoryBean - Parsed mapper file: 'file [C:\Users\402-23\Documents\workspace_Iltuo\iltuoProject\bin\main\mappers\OrderMapper.xml]'
+2024-07-23T14:40:05.220+0900 DEBUG o.m.spring.SqlSessionFactoryBean - Parsed mapper file: 'file [C:\Users\402-23\Documents\workspace_Iltuo\iltuoProject\bin\main\mappers\OrderMapper.xml]'
+2024-07-23T14:40:05.226+0900 DEBUG o.m.spring.SqlSessionFactoryBean - Parsed mapper file: 'file [C:\Users\402-23\Documents\workspace_Iltuo\iltuoProject\bin\main\mappers\ShopMapper.xml]'
+2024-07-23T14:40:05.226+0900 DEBUG o.m.spring.SqlSessionFactoryBean - Parsed mapper file: 'file [C:\Users\402-23\Documents\workspace_Iltuo\iltuoProject\bin\main\mappers\ShopMapper.xml]'
+2024-07-23T14:40:05.233+0900 DEBUG o.m.spring.SqlSessionFactoryBean - Parsed mapper file: 'file [C:\Users\402-23\Documents\workspace_Iltuo\iltuoProject\bin\main\mappers\UserMapper.xml]'
+2024-07-23T14:40:05.233+0900 DEBUG o.m.spring.SqlSessionFactoryBean - Parsed mapper file: 'file [C:\Users\402-23\Documents\workspace_Iltuo\iltuoProject\bin\main\mappers\UserMapper.xml]'
+2024-07-23T14:40:05.330+0900 DEBUG o.m.s.b.a.MybatisAutoConfiguration - Not found configuration for registering mapper bean using @MapperScan, MapperFactoryBean and MapperScannerConfigurer.
+2024-07-23T14:40:10.143+0900 DEBUG o.m.s.b.a.MybatisAutoConfiguration - Searching for mappers annotated with @Mapper
+2024-07-23T14:40:10.143+0900 DEBUG o.m.s.b.a.MybatisAutoConfiguration - Using auto-configuration base package 'kr.co.iltuo'
+2024-07-23T14:40:10.255+0900 DEBUG o.m.s.mapper.ClassPathMapperScanner - Identified candidate component class: file [C:\Users\402-23\Documents\workspace_Iltuo\iltuoProject\bin\main\kr\co\iltuo\mapper\OrderMapper.class]
+2024-07-23T14:40:10.255+0900 DEBUG o.m.s.mapper.ClassPathMapperScanner - Identified candidate component class: file [C:\Users\402-23\Documents\workspace_Iltuo\iltuoProject\bin\main\kr\co\iltuo\mapper\ShopMapper.class]
+2024-07-23T14:40:10.255+0900 DEBUG o.m.s.mapper.ClassPathMapperScanner - Identified candidate component class: file [C:\Users\402-23\Documents\workspace_Iltuo\iltuoProject\bin\main\kr\co\iltuo\mapper\UserMapper.class]
+2024-07-23T14:40:10.256+0900 DEBUG o.m.s.mapper.ClassPathMapperScanner - Creating MapperFactoryBean with name 'orderMapper' and 'kr.co.iltuo.mapper.OrderMapper' mapperInterface
+2024-07-23T14:40:10.257+0900 DEBUG o.m.s.mapper.ClassPathMapperScanner - Creating MapperFactoryBean with name 'shopMapper' and 'kr.co.iltuo.mapper.ShopMapper' mapperInterface
+2024-07-23T14:40:10.257+0900 DEBUG o.m.s.mapper.ClassPathMapperScanner - Creating MapperFactoryBean with name 'userMapper' and 'kr.co.iltuo.mapper.UserMapper' mapperInterface
+2024-07-23T14:40:10.826+0900 DEBUG o.m.spring.SqlSessionFactoryBean - Parsed mapper file: 'file [C:\Users\402-23\Documents\workspace_Iltuo\iltuoProject\bin\main\mappers\OrderMapper.xml]'
+2024-07-23T14:40:10.826+0900 DEBUG o.m.spring.SqlSessionFactoryBean - Parsed mapper file: 'file [C:\Users\402-23\Documents\workspace_Iltuo\iltuoProject\bin\main\mappers\OrderMapper.xml]'
+2024-07-23T14:40:10.840+0900 DEBUG o.m.spring.SqlSessionFactoryBean - Parsed mapper file: 'file [C:\Users\402-23\Documents\workspace_Iltuo\iltuoProject\bin\main\mappers\ShopMapper.xml]'
+2024-07-23T14:40:10.840+0900 DEBUG o.m.spring.SqlSessionFactoryBean - Parsed mapper file: 'file [C:\Users\402-23\Documents\workspace_Iltuo\iltuoProject\bin\main\mappers\ShopMapper.xml]'
+2024-07-23T14:40:10.850+0900 DEBUG o.m.spring.SqlSessionFactoryBean - Parsed mapper file: 'file [C:\Users\402-23\Documents\workspace_Iltuo\iltuoProject\bin\main\mappers\UserMapper.xml]'
+2024-07-23T14:40:10.850+0900 DEBUG o.m.spring.SqlSessionFactoryBean - Parsed mapper file: 'file [C:\Users\402-23\Documents\workspace_Iltuo\iltuoProject\bin\main\mappers\UserMapper.xml]'
+2024-07-23T14:40:11.251+0900 DEBUG o.m.s.b.a.MybatisAutoConfiguration - Not found configuration for registering mapper bean using @MapperScan, MapperFactoryBean and MapperScannerConfigurer.
+2024-07-23T14:41:15.971+0900 DEBUG o.m.s.b.a.MybatisAutoConfiguration - Searching for mappers annotated with @Mapper
+2024-07-23T14:41:15.971+0900 DEBUG o.m.s.b.a.MybatisAutoConfiguration - Using auto-configuration base package 'kr.co.iltuo'
+2024-07-23T14:41:16.005+0900 DEBUG o.m.s.mapper.ClassPathMapperScanner - Identified candidate component class: file [C:\Users\402-23\Documents\workspace_Iltuo\iltuoProject\bin\main\kr\co\iltuo\mapper\OrderMapper.class]
+2024-07-23T14:41:16.006+0900 DEBUG o.m.s.mapper.ClassPathMapperScanner - Identified candidate component class: file [C:\Users\402-23\Documents\workspace_Iltuo\iltuoProject\bin\main\kr\co\iltuo\mapper\ShopMapper.class]
+2024-07-23T14:41:16.006+0900 DEBUG o.m.s.mapper.ClassPathMapperScanner - Identified candidate component class: file [C:\Users\402-23\Documents\workspace_Iltuo\iltuoProject\bin\main\kr\co\iltuo\mapper\UserMapper.class]
+2024-07-23T14:41:16.006+0900 DEBUG o.m.s.mapper.ClassPathMapperScanner - Creating MapperFactoryBean with name 'orderMapper' and 'kr.co.iltuo.mapper.OrderMapper' mapperInterface
+2024-07-23T14:41:16.006+0900 DEBUG o.m.s.mapper.ClassPathMapperScanner - Creating MapperFactoryBean with name 'shopMapper' and 'kr.co.iltuo.mapper.ShopMapper' mapperInterface
+2024-07-23T14:41:16.007+0900 DEBUG o.m.s.mapper.ClassPathMapperScanner - Creating MapperFactoryBean with name 'userMapper' and 'kr.co.iltuo.mapper.UserMapper' mapperInterface
+2024-07-23T14:41:16.091+0900 DEBUG o.m.spring.SqlSessionFactoryBean - Parsed mapper file: 'file [C:\Users\402-23\Documents\workspace_Iltuo\iltuoProject\bin\main\mappers\OrderMapper.xml]'
+2024-07-23T14:41:16.091+0900 DEBUG o.m.spring.SqlSessionFactoryBean - Parsed mapper file: 'file [C:\Users\402-23\Documents\workspace_Iltuo\iltuoProject\bin\main\mappers\OrderMapper.xml]'
+2024-07-23T14:41:16.098+0900 DEBUG o.m.spring.SqlSessionFactoryBean - Parsed mapper file: 'file [C:\Users\402-23\Documents\workspace_Iltuo\iltuoProject\bin\main\mappers\ShopMapper.xml]'
+2024-07-23T14:41:16.098+0900 DEBUG o.m.spring.SqlSessionFactoryBean - Parsed mapper file: 'file [C:\Users\402-23\Documents\workspace_Iltuo\iltuoProject\bin\main\mappers\ShopMapper.xml]'
+2024-07-23T14:41:16.104+0900 DEBUG o.m.spring.SqlSessionFactoryBean - Parsed mapper file: 'file [C:\Users\402-23\Documents\workspace_Iltuo\iltuoProject\bin\main\mappers\UserMapper.xml]'
+2024-07-23T14:41:16.104+0900 DEBUG o.m.spring.SqlSessionFactoryBean - Parsed mapper file: 'file [C:\Users\402-23\Documents\workspace_Iltuo\iltuoProject\bin\main\mappers\UserMapper.xml]'
+2024-07-23T14:41:16.191+0900 DEBUG o.m.s.b.a.MybatisAutoConfiguration - Not found configuration for registering mapper bean using @MapperScan, MapperFactoryBean and MapperScannerConfigurer.
+2024-07-23T14:41:36.247+0900 DEBUG o.m.s.b.a.MybatisAutoConfiguration - Searching for mappers annotated with @Mapper
+2024-07-23T14:41:36.248+0900 DEBUG o.m.s.b.a.MybatisAutoConfiguration - Using auto-configuration base package 'kr.co.iltuo'
+2024-07-23T14:41:36.360+0900 DEBUG o.m.s.mapper.ClassPathMapperScanner - Identified candidate component class: file [C:\Users\402-23\Documents\workspace_Iltuo\iltuoProject\bin\main\kr\co\iltuo\mapper\OrderMapper.class]
+2024-07-23T14:41:36.360+0900 DEBUG o.m.s.mapper.ClassPathMapperScanner - Identified candidate component class: file [C:\Users\402-23\Documents\workspace_Iltuo\iltuoProject\bin\main\kr\co\iltuo\mapper\ShopMapper.class]
+2024-07-23T14:41:36.360+0900 DEBUG o.m.s.mapper.ClassPathMapperScanner - Identified candidate component class: file [C:\Users\402-23\Documents\workspace_Iltuo\iltuoProject\bin\main\kr\co\iltuo\mapper\UserMapper.class]
+2024-07-23T14:41:36.361+0900 DEBUG o.m.s.mapper.ClassPathMapperScanner - Creating MapperFactoryBean with name 'orderMapper' and 'kr.co.iltuo.mapper.OrderMapper' mapperInterface
+2024-07-23T14:41:36.362+0900 DEBUG o.m.s.mapper.ClassPathMapperScanner - Creating MapperFactoryBean with name 'shopMapper' and 'kr.co.iltuo.mapper.ShopMapper' mapperInterface
+2024-07-23T14:41:36.363+0900 DEBUG o.m.s.mapper.ClassPathMapperScanner - Creating MapperFactoryBean with name 'userMapper' and 'kr.co.iltuo.mapper.UserMapper' mapperInterface
+2024-07-23T14:41:36.933+0900 DEBUG o.m.spring.SqlSessionFactoryBean - Parsed mapper file: 'file [C:\Users\402-23\Documents\workspace_Iltuo\iltuoProject\bin\main\mappers\OrderMapper.xml]'
+2024-07-23T14:41:36.933+0900 DEBUG o.m.spring.SqlSessionFactoryBean - Parsed mapper file: 'file [C:\Users\402-23\Documents\workspace_Iltuo\iltuoProject\bin\main\mappers\OrderMapper.xml]'
+2024-07-23T14:41:36.947+0900 DEBUG o.m.spring.SqlSessionFactoryBean - Parsed mapper file: 'file [C:\Users\402-23\Documents\workspace_Iltuo\iltuoProject\bin\main\mappers\ShopMapper.xml]'
+2024-07-23T14:41:36.947+0900 DEBUG o.m.spring.SqlSessionFactoryBean - Parsed mapper file: 'file [C:\Users\402-23\Documents\workspace_Iltuo\iltuoProject\bin\main\mappers\ShopMapper.xml]'
+2024-07-23T14:41:36.956+0900 DEBUG o.m.spring.SqlSessionFactoryBean - Parsed mapper file: 'file [C:\Users\402-23\Documents\workspace_Iltuo\iltuoProject\bin\main\mappers\UserMapper.xml]'
+2024-07-23T14:41:36.956+0900 DEBUG o.m.spring.SqlSessionFactoryBean - Parsed mapper file: 'file [C:\Users\402-23\Documents\workspace_Iltuo\iltuoProject\bin\main\mappers\UserMapper.xml]'
+2024-07-23T14:41:37.353+0900 DEBUG o.m.s.b.a.MybatisAutoConfiguration - Not found configuration for registering mapper bean using @MapperScan, MapperFactoryBean and MapperScannerConfigurer.

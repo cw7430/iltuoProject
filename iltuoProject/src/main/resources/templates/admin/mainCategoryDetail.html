@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org"
+	xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+<title>대분류 상세보기</title>
+<th:block th:insert="~{fragments::head}" />
+</head>
+<body>
+	<!-- 헤더 섹션 시작 -->
+	<th:block th:insert="~{fragments::admin_sub_header}" />
+	<!-- 헤더 섹션 끝 -->
+
+	<!-- 내용 섹션 시작 -->
+	<div class="container">
+		<div class="row">
+			<div class="col mt-5">
+				<h2 class="mb-4">대분류 상세보기</h2>
+			</div>
+		</div>
+		<div class="row">
+			<div class="table-responsive">
+				<table class="table">
+					<tbody>
+						<tr>
+							<th class="table-dark" width="10%">분류명</th>
+							<td><span th:text="${mainCatrgory.mainCategoryName}"></span></td>
+						</tr>
+						<tr>
+							<th class="table-dark" width="10%">활성상태</th>
+							<td>
+								<span th:if="${mainCatrgory.optionValidID.equals('OPV0')}">활성화</span>
+								<span th:if="${mainCatrgory.optionValidID.equals('OPV1')}">비활성화</span>
+							</td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+		</div>
+		<div class="row mt-2 mb-3" style="display: flex; justify-content: center; align-items: center; gap: 10px;">
+			<form th:if="${mainCatrgory.optionValidID.equals('OPV0')}" th:action="@{/categoryManagement/updateMainCategoryValid}" method="post" onsubmit="return confirmInvalid();">
+				<input type="hidden" th:value="${mainCatrgory.mainCategoryID}" name="mainCategoryID" readonly="readonly">
+				<input type="hidden" th:value="${mainCatrgory.mainCategoryName}" name="mainCategoryName" readonly="readonly">
+				<input type="hidden" name="optionValidID" value="OPV1" readonly="readonly">
+				<input type="hidden" name="viewOrder" value="b" readonly="readonly">
+				<button type="submit" class="btn btn-danger">대분류 비활성화</button>
+			</form>
+			<form th:if="${mainCatrgory.optionValidID.equals('OPV1')}" th:action="@{/categoryManagement/updateMainCategoryValid}" method="post" onsubmit="return confirmValid();">
+				<input type="hidden" th:value="${mainCatrgory.mainCategoryID}" name="mainCategoryID" readonly="readonly">
+				<input type="hidden" th:value="${mainCatrgory.mainCategoryName}" name="mainCategoryName" readonly="readonly">
+				<input type="hidden" name="optionValidID" value="OPV0" readonly="readonly">
+				<input type="hidden" name="viewOrder" value="b" readonly="readonly">
+				<button type="submit" class="btn btn-success">대분류 활성화</button>
+			</form>
+		</div>
+
+		<div class="row">
+			<div class="col mt-3">
+				<h2 class="mb-4">소분류 관리</h2>
+			</div>
+		</div>
+		<div class="row">
+			<div class="table-responsive">
+				<div class="d-flex justify-content-end mb-2">
+					<button type="button" class="btn btn-primary" onclick="toggleSubCategoryForm()">등록하기</button>
+				</div>
+				<table class="table">
+					<thead class="table-dark">
+						<tr>
+							<th colspan="2">활성화된 소분류</th>
+						</tr>
+					</thead>
+					<tbody th:each="validSubCategoryList : ${validSubCategoryList}">
+						<tr>
+							<td>
+								<span th:text="${validSubCategoryList.subCategoryName}"></span>
+							</td>
+							<td style="text-align: right;">
+								<div style="display: inline-block;">
+									<button type="button" class="btn btn-primary" onclick="toggleEdit(this)">소분류 수정</button>
+								</div>
+								<div style="display: inline-block;">
+									<form th:action="@{/mainCategoryDetail/updateSubCategoryValid}" method="post" onsubmit="return confirmInvalid();">
+										<input type="hidden" th:value="${validSubCategoryList.mainCategoryID}" name="mainCategoryID" readonly="readonly">
+										<input type="hidden" th:value="${validSubCategoryList.subCategoryID}" name="subCategoryID" readonly="readonly">
+										<input type="hidden" th:value="${validSubCategoryList.subCategoryName}" name="subCategoryName" readonly="readonly">
+										<input type="hidden" name="optionValidID" value="OPV1" readonly="readonly">
+										<button type="submit" class="btn btn-danger">소분류 비활성화</button>
+									</form>
+								</div>
+							</td>
+						</tr>
+						<tr style="display:none;">
+							<td colspan="2">
+								<form th:action="@{/mainCategoryDetail/updateSubCategoryName}" method="post" onsubmit="return confirmUpdate();">
+									<input type="hidden" th:value="${validSubCategoryList.mainCategoryID}" name="mainCategoryID" readonly="readonly">
+									<input type="hidden" th:value="${validSubCategoryList.subCategoryID}" name="subCategoryID" readonly="readonly">
+									<input type="text" th:value="${validSubCategoryList.subCategoryName}" name="subCategoryName">
+									&nbsp;&nbsp;&nbsp;
+									<button type="submit" class="btn btn-success">수정</button>
+								</form>
+							</td>
+						</tr>
+					</tbody>
+					<tr th:if="${#lists.size(validSubCategoryList) == 0}">
+						<td colspan="2">활성화된 소분류가 없습니다.</td>
+					</tr>
+				</table>
+			</div>
+		</div>
+		<div class="row">
+			<div class="table-responsive">
+				<table class="table">
+					<thead class="table-dark">
+						<tr>
+							<th colspan="2">비활성화된 소분류</th>
+						</tr>
+					</thead>
+					<tbody th:each="invalidSubCategoryList : ${invalidSubCategoryList}">
+						<tr>
+							<td>
+								<span th:text="${invalidSubCategoryList.subCategoryName}"></span>
+							</td>
+							<td style="text-align: right;">
+								<div style="display: inline-block;">
+									<button type="button" class="btn btn-primary" onclick="toggleEdit(this)">소분류 수정</button>
+								</div>
+								<div style="display: inline-block;">
+									<form th:action="@{/mainCategoryDetail/updateSubCategoryValid}" method="post" onsubmit="return confirmValid();">
+										<input type="hidden" th:value="${invalidSubCategoryList.mainCategoryID}" name="mainCategoryID" readonly="readonly">
+										<input type="hidden" th:value="${invalidSubCategoryList.subCategoryID}" name="subCategoryID" readonly="readonly">
+										<input type="hidden" th:value="${invalidSubCategoryList.subCategoryName}" name="subCategoryName" readonly="readonly">
+										<input type="hidden" name="optionValidID" value="OPV0" readonly="readonly">
+										<button type="submit" class="btn btn-success">소분류 활성화</button>
+									</form>
+								</div>
+							</td>
+						</tr>
+						<tr style="display:none;">
+							<td colspan="2">
+								<form th:action="@{/mainCategoryDetail/updateSubCategoryName}" method="post" onsubmit="return confirmUpdate();">
+									<input type="hidden" th:value="${invalidSubCategoryList.mainCategoryID}" name="mainCategoryID" readonly="readonly">
+									<input type="hidden" th:value="${invalidSubCategoryList.subCategoryID}" name="subCategoryID" readonly="readonly">
+									<input type="text" th:value="${invalidSubCategoryList.subCategoryName}" name="subCategoryName">
+									&nbsp;&nbsp;&nbsp;
+									<button type="submit" class="btn btn-success">수정</button>
+								</form>
+							</td>
+						</tr>
+					</tbody>
+					<tr th:if="${#lists.size(invalidSubCategoryList) == 0}">
+						<td colspan="2">비활성화된 소분류가 없습니다.</td>
+					</tr>
+				</table>
+			</div>
+		</div>
+		<div class="row" id="insertSubCategoryForm" style="display: none;">
+			<div class="table-responsive">
+				<table class="table">
+					<thead class="table-dark">
+						<tr>
+							<th>소분류 등록</th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr>
+							<td>
+								<form th:action="@{/mainCategoryDetail/insertSubCategory}" method="post" onsubmit="return confirmInsert();">
+									<input type="hidden" th:value="${mainCatrgory.mainCategoryID}" name="mainCategoryID" readonly="readonly">
+									<input type="text" name="subCategoryName">
+									&nbsp;&nbsp;&nbsp;
+									<button type="submit" class="btn btn-success">등록</button>
+									&nbsp;&nbsp;&nbsp;
+									<button type="button" class="btn btn-danger" onclick="toggleSubCategoryForm()">취소</button>
+								</form>
+							</td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+		</div>
+		<div class="row">
+			<div class="col mt-5">
+				<h2 class="mb-4">옵션 관리</h2>
+			</div>
+		</div>
+		<div class="row">
+			<div class="table-responsive">
+				<div class="d-flex justify-content-end mb-2">
+					<a class="btn btn-primary" th:href="@{/optionDetail(mainCategoryID=${mainCatrgory.mainCategoryID})}" style="color: #FFFFFF">상세보기</a>
+				</div>
+				<table class="table">
+					<thead class="table-dark">
+						<tr>
+							<th colspan="2">등록된 옵션</th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr th:if="${mainCatrgory.optionGrade.equals('OT1') OR mainCatrgory.optionGrade.equals('OT2') OR mainCatrgory.optionGrade.equals('OT3')}">
+							<td>
+								<span th:text="${optionList.majorOptionCategory}"></span>
+							</td>
+							<td style="text-align: right;">
+								<div style="display: inline-block;">
+									<button type="button" class="btn btn-primary" onclick="toggleEdit(this)">옵션 수정</button>
+								</div>
+								<div style="display: inline-block;">
+									<form th:action="@{/mainCategoryDetail/deleteMajorOption}" method="post" onsubmit="return confirmDelete();">
+										<input type="hidden" th:value="${mainCatrgory.mainCategoryID}" name="mainCategoryID" readonly="readonly">
+										<input type="hidden" name="optionGradeValidate" th:value="${mainCatrgory.optionGrade}" readonly="readonly">
+										<input type="hidden" name="optionValidID" value="OPV1" readonly="readonly">
+										<input type="hidden" name="optionGrade" value="OT0" readonly="readonly">
+										<button type="submit" class="btn btn-danger">옵션 삭제</button>
+									</form>
+								</div>
+							</td>
+						</tr>
+						<tr th:if="${mainCatrgory.optionGrade.equals('OT1') OR mainCatrgory.optionGrade.equals('OT2') OR mainCatrgory.optionGrade.equals('OT3')}" style="display:none;">
+							<td colspan="2">
+								<form th:action="@{/mainCategoryDetail/updateMajorOptionCategory}" method="post" onsubmit="return confirmUpdate();">
+									<input type="hidden" th:value="${mainCatrgory.mainCategoryID}" name="mainCategoryID" readonly="readonly">
+									<input type="text" th:value="${optionList.majorOptionCategory}" name="majorOptionCategory">
+									&nbsp;&nbsp;&nbsp;
+									<button type="submit" class="btn btn-success">수정</button>
+								</form>
+							</td>
+						</tr>
+						<tr th:if="${mainCatrgory.optionGrade.equals('OT2') OR mainCatrgory.optionGrade.equals('OT3')}">
+							<td>
+								<span th:text="${optionList.subOptionCategory}"></span>
+							</td>
+							<td style="text-align: right;">
+								<div style="display: inline-block;">
+									<button type="button" class="btn btn-primary" onclick="toggleEdit(this)">옵션 수정</button>
+								</div>
+								<div style="display: inline-block;">
+									<form th:action="@{/mainCategoryDetail/deleteSubOption}" method="post" onsubmit="return confirmDelete();">
+										<input type="hidden" th:value="${mainCatrgory.mainCategoryID}" name="mainCategoryID" readonly="readonly">
+										<input type="hidden" name="optionGradeValidate" th:value="${mainCatrgory.optionGrade}" readonly="readonly">
+										<input type="hidden" name="optionValidID" value="OPV1" readonly="readonly">
+										<input type="hidden" name="optionGrade" value="OT1" readonly="readonly">
+										<button type="submit" class="btn btn-danger">옵션 삭제</button>
+									</form>
+								</div>
+							</td>
+						</tr>
+						<tr th:if="${mainCatrgory.optionGrade.equals('OT2') OR mainCatrgory.optionGrade.equals('OT3')}" style="display:none;">
+							<td colspan="2">
+								<form th:action="@{/mainCategoryDetail/updateSubOptionCategory}" method="post" onsubmit="return confirmUpdate();">
+									<input type="hidden" th:value="${mainCatrgory.mainCategoryID}" name="mainCategoryID" readonly="readonly">
+									<input type="text" th:value="${optionList.subOptionCategory}" name="subOptionCategory">
+									&nbsp;&nbsp;&nbsp;
+									<button type="submit" class="btn btn-success">수정</button>
+								</form>
+							</td>
+						</tr>
+						<tr th:if="${mainCatrgory.optionGrade.equals('OT3')}">
+							<td>
+								<span th:text="${optionList.minerOptionCategory}"></span>
+							</td>
+							<td style="text-align: right;">
+								<div style="display: inline-block;">
+									<button type="button" class="btn btn-primary" onclick="toggleEdit(this)">옵션 수정</button>
+								</div>
+								<div style="display: inline-block;">
+									<form th:action="@{/mainCategoryDetail/deleteMinerOption}" method="post" onsubmit="return confirmDelete();">
+										<input type="hidden" th:value="${mainCatrgory.mainCategoryID}" name="mainCategoryID" readonly="readonly">
+										<input type="hidden" name="optionGradeValidate" th:value="${mainCatrgory.optionGrade}" readonly="readonly">
+										<input type="hidden" name="optionValidID" value="OPV1" readonly="readonly">
+										<input type="hidden" name="optionGrade" value="OT2" readonly="readonly">
+										<button type="submit" class="btn btn-danger">옵션 삭제</button>
+									</form>
+								</div>
+							</td>
+						</tr>
+						<tr th:if="${mainCatrgory.optionGrade.equals('OT3')}" style="display:none;">
+							<td colspan="2">
+								<form th:action="@{/mainCategoryDetail/updateMinerOptionCategory}" method="post" onsubmit="return confirmUpdate();">
+									<input type="hidden" th:value="${mainCatrgory.mainCategoryID}" name="mainCategoryID" readonly="readonly">
+									<input type="text" th:value="${optionList.minerOptionCategory}" name="minerOptionCategory">
+									&nbsp;&nbsp;&nbsp;
+									<button type="submit" class="btn btn-success">수정</button>
+								</form>
+							</td>
+						</tr>
+					</tbody>
+					<tr th:if="${mainCatrgory.optionGrade.equals('OT0')}">
+						<td colspan="2">등록된 옵션이 없습니다.</td>
+					</tr>
+				</table>
+			</div>
+		</div>
+		<div class="row mt-2 mb-3" style="display: flex; justify-content: center; align-items: center; gap: 10px;">
+			<a class="btn btn-info" id="cancleBtn" style="color: #FFFFFF" th:href="@{/categoryManagement}">목록으로</a>
+		</div>
+	</div>
+	<!-- 내용 섹션 끝 -->
+
+	<!-- 푸터 섹션 시작 -->
+	<th:block th:insert="~{fragments::footer}" />
+	<!-- 푸터 섹션 끝 -->
+
+	<!-- 자바스크립트 파일 -->
+	<th:block th:insert="~{fragments::script}" />
+
+	<script th:inline="javascript">
+		document.addEventListener('DOMContentLoaded', () => {
+			let m = /*[[${msg}]]*/ '기본값';
+		    if (m !== null && m !== '기본값') {
+		        alert(m);
+		    }
+		});
+		
+		function confirmInvalid() {
+			let isValid = true;
+			let confirmMsg = "해당 분류를 비활성화 하시겠습니까?";
+			
+			if (!confirm(confirmMsg)) {
+				isValid = false;
+			}
+			
+			return isValid;
+		}
+		
+		function confirmValid() {
+			let isValid = true;
+			let confirmMsg = "해당 분류를 활성화 하시겠습니까?";
+			
+			if (!confirm(confirmMsg)) {
+				isValid = false;
+			}
+			
+			return isValid;
+		}
+		
+		function confirmInsert() {
+			let isValid = true;
+			let confirmMsg = "해당 분류를 등록 하시겠습니까?";
+			
+			if (!confirm(confirmMsg)) {
+				isValid = false;
+			}
+			
+			return isValid;
+		}
+		
+		function confirmUpdate() {
+			let isValid = true;
+			let confirmMsg = "해당 분류를 수정 하시겠습니까?";
+			
+			if (!confirm(confirmMsg)) {
+				isValid = false;
+			}
+			
+			return isValid;
+		}
+		
+		function confirmDelete() {
+			let isValid = true;
+			let confirmMsg = "해당 분류를 삭제 하시겠습니까?";
+			
+			if (!confirm(confirmMsg)) {
+				isValid = false;
+			}
+			
+			return isValid;
+		}
+		
+		function toggleEdit(button) {
+			const currentRow = button.closest('tr');
+			const nextRow = currentRow.nextElementSibling;
+			if (nextRow.style.display === 'none' || nextRow.style.display === '') {
+				nextRow.style.display = 'table-row';
+			} else {
+				nextRow.style.display = 'none';
+			}
+		}
+		
+		function toggleSubCategoryForm() {
+	        const form = document.getElementById('insertSubCategoryForm');
+	        if (form.style.display === 'none') {
+	            form.style.display = 'block';
+	        } else {
+	            form.style.display = 'none';
+	        }
+	    }
+		
+	</script>
+</body>
+</html>

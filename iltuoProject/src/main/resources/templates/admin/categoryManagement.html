@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org"
+	xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+<title>분류관리</title>
+<th:block th:insert="~{fragments::head}" />
+<style type="text/css">
+.table-hover thead tr {
+	background-color: black;
+	color: white;
+}
+body {
+	display: flex;
+	flex-direction: column;
+	min-height: 100vh;
+}
+.container {
+	flex: 1;
+}
+footer {
+	margin-top: auto;
+}
+</style>
+</head>
+<body class="d-flex flex-column min-vh-100">
+	<!-- header section start -->
+	<th:block th:insert="~{fragments::admin_sub_header}" />
+	<!-- header section end -->
+	<!-- contents section start -->
+	<div class="container flex-grow-1">
+		<div class="row">
+			<div class="col mt-5">
+				<h2 class="mb-4">분류관리</h2>
+			</div>
+		</div>
+		<div class="row">
+			<div class="table-responsive">
+				<div class="d-flex justify-content-end mb-2">
+					<a class="btn btn-primary" onclick="toggleMainCategoryForm()" style="color: #FFFFFF;">등록하기</a>
+				</div>
+				<table class="table table-hover">
+					<thead class="table-dark">
+						<tr>
+							<th colspan="2">활성화된 대분류</th>
+						</tr>
+					</thead>
+					<tbody th:each="validList : ${validList}">
+						<tr th:if="${#lists.size(validList) > 0}" style="cursor: pointer;">
+							<td onclick="navigateToCategoryDetail(this);">
+								<span th:text="${validList.mainCategoryName}"></span>
+								<input type="hidden" name="URL" th:value="'/mainCategoryDetail?mainCategoryID=' + ${validList.mainCategoryID}" readonly="readonly">
+							</td>
+							<td style="text-align: right;">
+								<div style="display: inline-block;">
+									<button type="button" class="btn btn-primary" onclick="toggleEdit(this)">대분류 수정</button>
+								</div>
+								<div style="display: inline-block;">
+									<form th:action="@{/categoryManagement/updateMainCategoryValid}" method="post" onsubmit="return confirmInvalid();">
+										<input type="hidden" th:value="${validList.mainCategoryID}" name="mainCategoryID" readonly="readonly">
+										<input type="hidden" th:value="${validList.mainCategoryName}" name="mainCategoryName" readonly="readonly">
+										<input type="hidden" name="optionValidID" value="OPV1" readonly="readonly">
+										<input type="hidden" name="viewOrder" value="a" readonly="readonly">
+										<button type="submit" class="btn btn-danger">비활성화</button>
+									</form>
+								</div>
+							</td>
+						</tr>
+						<tr style="display:none;">
+							<td colspan="2">
+								<form th:action="@{/categoryManagement/updateMainCategoryName}" method="post" onsubmit="return confirmUpdate();">
+									<input type="hidden" name="mainCategoryID" th:value="${validList.mainCategoryID}" readonly="readonly">
+									<input type="text" th:value="${validList.mainCategoryName}" name="mainCategoryName">
+									&nbsp;&nbsp;&nbsp;
+									<button type="submit" class="btn btn-success">수정</button>
+								</form>
+							</td>
+						</tr>
+					</tbody>
+					<tr th:if="${#lists.size(validList) == 0}">
+						<td colspan="2">활성화된 대분류가 없습니다.</td>
+					</tr>
+				</table>
+			</div>
+		</div>
+		<div class="row">
+			<div class="table-responsive">
+				<table class="table table-hover">
+					<thead class="table-dark">
+						<tr>
+							<th colspan="2">비활성화된 대분류</th>
+						</tr>
+					</thead>
+					<tbody th:each="invalidList : ${invalidList}">
+						<tr th:if="${#lists.size(invalidList) > 0}" style="cursor: pointer;">
+							<td onclick="navigateToCategoryDetail(this);">
+								<span th:text="${invalidList.mainCategoryName}"></span>
+								<input type="hidden" name="URL" th:value="'/mainCategoryDetail?mainCategoryID=' + ${invalidList.mainCategoryID}" readonly="readonly">
+							</td>
+							<td style="text-align: right;">
+								<div style="display: inline-block;">
+									<input type="hidden" name="mainCategoryID" th:value="${validList.mainCategoryID}" readonly="readonly">
+									<button type="button" class="btn btn-primary" onclick="toggleEdit(this)">대분류 수정</button>
+								</div>
+								<div style="display: inline-block;">
+									<form th:action="@{/categoryManagement/updateMainCategoryValid}" method="post" onsubmit="return confirmValid();">
+										<input type="hidden" th:value="${invalidList.mainCategoryID}" name="mainCategoryID" readonly="readonly">
+										<input type="hidden" th:value="${invalidList.mainCategoryName}" name="mainCategoryName" readonly="readonly">
+										<input type="hidden" name="optionValidID" value="OPV0" readonly="readonly">
+										<input type="hidden" name="viewOrder" value="a" readonly="readonly">
+										<button type="submit" class="btn btn-success">활성화</button>
+									</form>
+								</div>
+							</td>
+						</tr>
+						<tr style="display:none;">
+							<td colspan="2">
+								<form th:action="@{/categoryManagement/updateMainCategoryName}" method="post" onsubmit="return confirmUpdate();">
+									<input type="hidden" name="mainCategoryID" th:value="${validList.mainCategoryID}" readonly="readonly">
+									<input type="text" th:value="${validList.mainCategoryName}" name="mainCategoryName">
+									&nbsp;&nbsp;&nbsp;
+									<button type="submit" class="btn btn-success">수정</button>
+								</form>
+							</td>
+						</tr>
+					</tbody>
+					<tr th:if="${#lists.size(invalidList) == 0}">
+						<td colspan="2">비활성화된 대분류가 없습니다.</td>
+					</tr>
+				</table>
+			</div>
+		</div>
+		<div class="row" id="insertMainCategoryForm" style="display: none;">
+			<div class="table-responsive">
+				<table class="table">
+					<thead class="table-dark">
+						<tr>
+							<th>대분류 등록</th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr>
+							<td>
+								<form th:action="@{/categoryManagement/insertMainCategory}" method="post" onsubmit="return confirmInsert();">
+									<input type="text" name="mainCategoryName">
+									&nbsp;&nbsp;&nbsp;
+									<button type="submit" class="btn btn-success">등록</button>
+									&nbsp;&nbsp;&nbsp;
+									<button type="button" onclick="toggleMainCategoryForm()" class="btn btn-danger">취소</button>
+								</form>
+							</td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+		</div>
+	</div>
+	<!-- contents section end -->
+
+	<!-- footer section start -->
+	<footer class="mt-auto">
+		<th:block th:insert="~{fragments::footer}" />
+	</footer>
+	<!-- footer section end -->
+
+	<!-- Javascript files-->
+	<th:block th:insert="~{fragments::script}" />
+	<script th:inline="javascript">
+		document.addEventListener('DOMContentLoaded', () => {
+			let m = /*[[${msg}]]*/ '기본값';
+		    if (m !== null && m !== '기본값') {
+		        alert(m);
+		    }
+		});
+		
+		function navigateToCategoryDetail(row) {
+			const priceID = row.querySelector('input[name="URL"]').value;
+			const url = priceID;
+			window.location.href = url;
+		}
+		
+		function confirmInvalid() {
+			let isValid = true;
+			let confirmMsg = "해당 분류를 비활성화 하시겠습니까?";
+			
+			if (!confirm(confirmMsg)) {
+				isValid = false;
+			}
+			
+			return isValid;
+		}
+		
+		function confirmValid() {
+			let isValid = true;
+			let confirmMsg = "해당 분류를 활성화 하시겠습니까?";
+			
+			if (!confirm(confirmMsg)) {
+				isValid = false;
+			}
+			
+			return isValid;
+		}
+		
+		function confirmUpdate() {
+			let isValid = true;
+			let confirmMsg = "해당 분류를 수정 하시겠습니까?";
+			
+			if (!confirm(confirmMsg)) {
+				isValid = false;
+			}
+			
+			return isValid;
+		}
+		
+		function confirmInsert() {
+			let isValid = true;
+			let confirmMsg = "해당 분류를 등록 하시겠습니까?";
+			
+			if (!confirm(confirmMsg)) {
+				isValid = false;
+			}
+			
+			return isValid;
+		}
+		
+		function toggleEdit(button) {
+			const currentRow = button.closest('tr');
+			const nextRow = currentRow.nextElementSibling;
+			if (nextRow.style.display === 'none' || nextRow.style.display === '') {
+				nextRow.style.display = 'table-row';
+			} else {
+				nextRow.style.display = 'none';
+			}
+		}
+		
+		function toggleMainCategoryForm() {
+	        const form = document.getElementById('insertMainCategoryForm');
+	        if (form.style.display === 'none') {
+	            form.style.display = 'block';
+	        } else {
+	            form.style.display = 'none';
+	        }
+	    }
+		
+	</script>
+</body>
+</html>
